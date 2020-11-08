@@ -1,0 +1,19 @@
+html {
+  -ms-content-zooming: none;
+  -ms-touch-action: pan-x pan-y;
+}
+.space-align-container {
+  display: flex;
+  align-item: flex-start;
+  flex-wrap: wrap;
+}
+.space-align-block {
+  margin: 8px 4px;
+  padding: 4px;
+  flex: none;
+}
+.space-align-block .mock-block {
+  display: inline-block;
+  padding: 32px 8px 16px;
+  background: rgba(150, 150, 150, 0.2);
+}
