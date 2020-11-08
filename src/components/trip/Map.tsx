@@ -15,6 +15,13 @@ const useStyles = makeStyles((theme: Theme) =>
       width: 350,
       height: 350,
     },
+    mapButton: {
+      backgroundColor: 'rgba(0, 0, 0, 0.09)',
+      height: 15,
+      width: 350,
+      borderBottomRightRadius: 4,
+      borderBottomLeftRadius: 4,
+    },
     dnd: {
       paddingTop: 30,
     },
@@ -40,7 +47,7 @@ function Map(formikProps: FormikProps<any>) {
   };
 
   const handleClick = (e: any) => {
-    if (e.target.className.split(' ').pop() === 'custom_marker_click') {
+    if (e.target.className?.split(' ').pop() === 'custom_marker_click') {
       let bucketArray: IRouteRoutesRegion[] = values.regions;
       const region = JSON.parse(e.target.dataset.region);
       const findRegion = values?.regions
@@ -124,6 +131,7 @@ function Map(formikProps: FormikProps<any>) {
         }}
       />
       <div id={'map'} className={classes.map} />
+      <div className={classes.mapButton} />
       <DndProvider backend={TouchBackend}>
         <Regions {...formikProps} />
       </DndProvider>

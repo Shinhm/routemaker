@@ -22,4 +22,5 @@ export interface IRouteRoutesRegion {
   road_address_name: string;
   x: string;
   y: string;
+  sort?: number;
 }

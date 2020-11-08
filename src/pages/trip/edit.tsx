@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import FirebaseService from '../../services/FirebaseService';
 import { useLocation, useParams } from 'react-router-dom';
 import { IRoute, IRouteRoutes, IRouteRoutesRegion } from '../../models/Route';
@@ -17,6 +17,7 @@ import {
   FormControl,
   InputLabel,
   Button,
+  LinearProgress,
 } from '@material-ui/core';
 import { makeStyles } from '@material-ui/core/styles';
 import { format } from 'date-fns';
@@ -77,6 +78,7 @@ function Edit() {
   const classes = useStyles();
   const { id, edit }: { id: string; edit: string } = useParams();
   const query = useQuery();
+  const [pending, setPending] = useState(true);
   const [form, setForm] = useState<IRouteRoutes>({
     date: '',
     regions: [],
@@ -97,10 +99,12 @@ function Edit() {
     const collection = FirebaseService.getCollection();
     const result = await collection.doc(id).get();
     const { routes = [], notice = '' } = result.data() || {};
+    if (!formData.date) {
+      return alert('날짜를 입력해주세요.');
+    }
     const filter = routes
       .filter((routeFilter: IRouteRoutes) => routeFilter.date === formData.date)
       .pop();
-    console.log(formData);
     if (!formData.regions.length) {
       return alert('지역을 추가하셔야 합니다.');
     }
@@ -112,27 +116,30 @@ function Edit() {
         await collection.doc(id).set({
           notice: notice,
           routes: routes.concat({
-            date: form.date,
-            regions: form.regions,
+            date: formData.date,
+            regions: formData.regions,
+            budget: formData.budget,
           }),
         });
       } else {
         const updateRoutes = routes.map((route: IRouteRoutes) => {
-          if (route.date === form.date) {
+          if (route.date === formData.date) {
             return {
-              date: form.date,
-              regions: form.regions,
+              date: formData.date,
+              regions: formData.regions,
+              budget: formData.budget,
             };
           }
           return route;
         });
-        // await collection.doc(id).set({
-        //   notice: notice,
-        //   routes: updateRoutes,
-        // });
+        console.log(updateRoutes);
+        await collection.doc(id).set({
+          notice: notice,
+          routes: updateRoutes,
+        });
       }
 
-      // window.location.replace(`/${id}/trip`);
+      window.location.replace(`/${id}/trip`);
     } catch (e) {
       console.log(e);
     }
@@ -148,10 +155,13 @@ function Edit() {
         })
         .pop();
       if (getRoutesWithSearchField) {
+        console.log(getRoutesWithSearchField);
         setForm(getRoutesWithSearchField);
       }
     } catch (e) {
       console.log(e);
+    } finally {
+      setPending(false);
     }
   };
 
@@ -162,78 +172,92 @@ function Edit() {
     if (edit === EDIT_ENTRY.edit) {
       const q = EncryptService.decrypt(query.q.toString());
       fetchRoute(q);
+    } else {
+      setPending(false);
     }
   }, []);
 
   return (
-    <Layout appbar={{ title: '추가', id: id, enabledPrevButton: true }}>
-      <Container className={classes.root}>
-        <Formik
-          initialValues={{
-            budget: '',
-            regions: form.regions,
-            date: form.date,
-          }}
-          onSubmit={handleSubmit}
-        >
-          {(props: FormikProps<any>) => {
-            const { setFieldValue, values, submitForm } = props;
-            const { date, budget } = values;
-            return (
-              <Form>
-                <Grid container spacing={3}>
-                  <Grid container item xs={6}>
-                    <FormControl fullWidth>
-                      <InputLabel htmlFor="budget">예산</InputLabel>
-                      <Input
-                        id="budget"
-                        defaultValue={budget}
-                        type={'number'}
+    <Layout
+      appbar={{
+        title: edit === EDIT_ENTRY.edit ? '수정' : '추가',
+        id: id,
+        enabledPrevButton: true,
+      }}
+    >
+      {pending ? (
+        <LinearProgress />
+      ) : (
+        <Container className={classes.root}>
+          <Formik
+            initialValues={{
+              budget: form.budget || '',
+              regions: form.regions,
+              date: form.date,
+            }}
+            enableReinitialize={true}
+            onSubmit={handleSubmit}
+          >
+            {(props: FormikProps<any>) => {
+              const { setFieldValue, values, submitForm } = props;
+              const { budget, date } = values;
+              return (
+                <Form>
+                  <Grid container spacing={3}>
+                    <Grid container item xs={6}>
+                      <FormControl fullWidth>
+                        <InputLabel htmlFor="budget">예산</InputLabel>
+                        <Input
+                          id="budget"
+                          defaultValue={budget}
+                          type={'number'}
+                          onChange={(e) => {
+                            const budget = e.target.value;
+                            setFieldValue('budget', budget);
+                          }}
+                          startAdornment={
+                            <InputAdornment position="start">₩</InputAdornment>
+                          }
+                        />
+                      </FormControl>
+                    </Grid>
+                    <Grid container item xs={6}>
+                      <TextField
+                        label="일정"
+                        type="date"
                         onChange={(e) => {
-                          const budget = e.target.value;
-                          setFieldValue('budget', budget);
+                          const date = e.target.value;
+                          setFieldValue(
+                            'date',
+                            format(new Date(date), 'yyyy-MM-dd')
+                          );
                         }}
-                        startAdornment={
-                          <InputAdornment position="start">₩</InputAdornment>
-                        }
+                        defaultValue={date}
+                        style={{ width: '100%' }}
+                        InputLabelProps={{
+                          shrink: true,
+                        }}
                       />
-                    </FormControl>
+                    </Grid>
+                    <Grid container item xs={12}>
+                      <Map {...props} />
+                    </Grid>
                   </Grid>
-                  <Grid container item xs={6}>
-                    <TextField
-                      id="date"
-                      label="일정"
-                      type="date"
-                      name={'date'}
-                      onChange={(e) => {
-                        const date = e.target.value;
-                        setFieldValue('date', new Date(date));
-                      }}
-                      style={{ width: '100%' }}
-                      defaultValue={format(date || new Date(), 'yyyy-MM-dd')}
-                      InputLabelProps={{
-                        shrink: true,
-                      }}
-                    />
-                  </Grid>
-                  <Grid container item xs={12}>
-                    <Map {...props} />
-                  </Grid>
-                </Grid>
-                <Button
-                  className={classes.submitButton}
-                  variant="contained"
-                  color="primary"
-                  type={'button'}
-                  onClick={submitForm}
-                >
-                  등록하기
-                </Button>
-              </Form>
-            );
-          }}
-        </Formik>
-      </Container>
+                  <Button
+                    className={classes.submitButton}
+                    variant="contained"
+                    color="primary"
+                    type={'button'}
+                    onClick={submitForm}
+                  >
+                    {edit === EDIT_ENTRY.edit ? '수정하기' : '등록하기'}
+                  </Button>
+                </Form>
+              );
+            }}
+          </Formik>
+        </Container>
+      )}
     </Layout>
   );
 }
