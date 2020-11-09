@@ -1,5 +1,6 @@
 import firebase from 'firebase';
 import 'firebase/firestore';
+import { IRoute, IRouteRoutes } from '../models/Route';
 
 class FirebaseService {
   initFirebase() {
@@ -28,6 +29,31 @@ class FirebaseService {
     const collection = this.getCollection();
     const getDoc = await collection.doc(code).get();
     return getDoc.exists;
+  }
+
+  getDoc(id: string) {
+    return this.getCollection().doc(id).get();
+  }
+
+  updateRegions(routes: IRoute, formData: IRouteRoutes, id: string) {
+    const updateRoutes = routes.routes.map((route: IRouteRoutes) => {
+      if (route.date === formData.date) {
+        return {
+          date: formData.date,
+          regions: formData.regions,
+          budget: formData.budget,
+        };
+      }
+      return route;
+    });
+    return this.setCollection(
+      { notice: routes.notice, routes: updateRoutes },
+      id
+    );
+  }
+
+  setCollection(setData: any, id: string) {
+    return this.getCollection().doc(id).set(setData);
   }
 }
 

@@ -1,10 +1,9 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import FirebaseService from '../../services/FirebaseService';
 import { useLocation, useParams } from 'react-router-dom';
-import { IRoute, IRouteRoutes, IRouteRoutesRegion } from '../../models/Route';
+import { IRoute, IRouteRoutes } from '../../models/Route';
 import qs from 'querystring';
 import EncryptService from '../../services/EncryptService';
-import './edit.scss';
 import Layout from '../../components/_common/layout/Layout';
 import {
   createStyles,
@@ -22,9 +21,6 @@ import {
 import { makeStyles } from '@material-ui/core/styles';
 import { format } from 'date-fns';
 import { Form, Formik, FormikProps } from 'formik';
-import { DndProvider } from 'react-dnd';
-import { TouchBackend } from 'react-dnd-touch-backend';
-import Regions from '../../components/trip/Regions';
 import Map from '../../components/trip/Map';
 
 enum EDIT_ENTRY {
@@ -96,8 +92,7 @@ function Edit() {
   };
 
   const handleSubmit = async (formData: IRouteRoutes) => {
-    const collection = FirebaseService.getCollection();
-    const result = await collection.doc(id).get();
+    const result = await FirebaseService.getDoc(id);
     const { routes = [], notice = '' } = result.data() || {};
     if (!formData.date) {
       return alert('날짜를 입력해주세요.');
@@ -113,14 +108,17 @@ function Edit() {
     }
     try {
       if (edit === EDIT_ENTRY.write) {
-        await collection.doc(id).set({
-          notice: notice,
-          routes: routes.concat({
-            date: formData.date,
-            regions: formData.regions,
-            budget: formData.budget,
-          }),
-        });
+        await FirebaseService.setCollection(
+          {
+            notice: notice,
+            routes: routes.concat({
+              date: formData.date,
+              regions: formData.regions,
+              budget: formData.budget,
+            }),
+          },
+          id
+        );
       } else {
         const updateRoutes = routes.map((route: IRouteRoutes) => {
           if (route.date === formData.date) {
@@ -132,11 +130,13 @@ function Edit() {
           }
           return route;
         });
-        console.log(updateRoutes);
-        await collection.doc(id).set({
-          notice: notice,
-          routes: updateRoutes,
-        });
+        await FirebaseService.setCollection(
+          {
+            notice: notice,
+            routes: updateRoutes,
+          },
+          id
+        );
       }
 
       window.location.replace(`/${id}/trip`);

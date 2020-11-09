@@ -4,18 +4,23 @@ import { useParams } from 'react-router-dom';
 import { IRoute, IRouteRoutes } from '../../models/Route';
 import Layout from '../../components/_common/layout/Layout';
 import ScheduleCard from '../../components/_common/items/ScheduleCard';
+import Empty from '../../components/_common/layout/Empty';
+import { LinearProgress } from '@material-ui/core';
 
 function Detail() {
   const { id }: { id: string } = useParams();
   const [routes, setRoutes] = useState<IRouteRoutes[]>([]);
+  const [pending, setPending] = useState(true);
 
   const fetchRoute = async () => {
     try {
       const result = await FirebaseService.getCollection().doc(id).get();
-      const { routes } = result.data() as IRoute;
-      setRoutes(routes || []);
+      const { routes = [] } = result.data() as IRoute;
+      setRoutes(routes);
     } catch (e) {
       console.log(e);
+    } finally {
+      setPending(false);
     }
   };
 
@@ -38,13 +43,20 @@ function Detail() {
           enabledAddButton: true,
         }}
       >
-        {routes.map((route) => {
-          return (
-            <React.Fragment key={route.date}>
-              <ScheduleCard date={route.date} region={route.regions} id={id} />
-            </React.Fragment>
-          );
-        })}
+        {pending ? (
+          <LinearProgress />
+        ) : (
+          <>
+            {routes.length === 0 && <Empty />}
+            {routes?.map((route) => {
+              return (
+                <React.Fragment key={route.date}>
+                  <ScheduleCard route={route} id={id} fetchRoute={fetchRoute} />
+                </React.Fragment>
+              );
+            })}
+          </>
+        )}
       </Layout>
     </>
   );

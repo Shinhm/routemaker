@@ -1,12 +1,29 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useDrop } from 'react-dnd';
 import update from 'immutability-helper';
 import RegionCard from '../_common/items/RegionCard';
 import { FormikProps } from 'formik';
 import { IRouteRoutesRegion } from '../../models/Route';
+import EditDialog from '../_common/dialogs/EditDialog';
 
 function Regions({ setFieldValue, values }: FormikProps<any>) {
   const { regions } = values;
+  const [open, setOpen] = useState(false);
+  const [region, setRegion] = useState(values.regions[0]);
+
+  const handleOpenDialog = (region: IRouteRoutesRegion) => {
+    setRegion(region);
+    setOpen(true);
+  };
+
+  const handleCloseDialog = () => {
+    setOpen(false);
+  };
+
+  const handleChangeCard = (region: IRouteRoutesRegion) => {
+    findCard(region.id);
+  };
+
   const moveCard = (id: string, atIndex: number) => {
     const { card, index } = findCard(id);
     setFieldValue(
@@ -39,8 +56,16 @@ function Regions({ setFieldValue, values }: FormikProps<any>) {
           text={region.place_name}
           moveCard={moveCard}
           findCard={findCard}
+          handleOpenDialog={() => handleOpenDialog(region)}
         />
       ))}
+      {open && (
+        <EditDialog
+          region={region}
+          handleCloseDialog={handleCloseDialog}
+          handleConfirmDialog={handleChangeCard}
+        />
+      )}
     </div>
   );
 }
