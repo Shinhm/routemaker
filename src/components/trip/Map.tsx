@@ -12,13 +12,13 @@ import { DndProvider } from 'react-dnd';
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
     map: {
-      width: 350,
+      width: '100%',
       height: 350,
     },
-    mapButton: {
+    mapBottom: {
       backgroundColor: 'rgba(0, 0, 0, 0.09)',
       height: 15,
-      width: 350,
+      width: '100%',
       borderBottomRightRadius: 4,
       borderBottomLeftRadius: 4,
     },
@@ -91,7 +91,7 @@ function Map(formikProps: FormikProps<any>) {
   const displayPlaces = (places: IRouteRoutesRegion[]) => {
     const bounds = new kakao.maps.LatLngBounds();
     removeMarker();
-    places.map((place) => {
+    places.forEach((place) => {
       const placePosition = new kakao.maps.LatLng(place.y, place.x);
       addMarker(placePosition, place);
       bounds.extend(placePosition);
@@ -131,7 +131,7 @@ function Map(formikProps: FormikProps<any>) {
         }}
       />
       <div id={'map'} className={classes.map} />
-      <div className={classes.mapButton} />
+      <div className={classes.mapBottom} />
       <DndProvider backend={TouchBackend}>
         <Regions {...formikProps} />
       </DndProvider>

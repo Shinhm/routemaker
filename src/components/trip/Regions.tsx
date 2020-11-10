@@ -20,8 +20,31 @@ function Regions({ setFieldValue, values }: FormikProps<any>) {
     setOpen(false);
   };
 
-  const handleChangeCard = (region: IRouteRoutesRegion) => {
-    findCard(region.id);
+  const handleChangeCard = (region: IRouteRoutesRegion, time: string) => {
+    const reMakeRegions = values.regions.map(
+      (valueRegion: IRouteRoutesRegion) => {
+        if (valueRegion.id === region.id) {
+          return {
+            ...valueRegion,
+            time,
+          };
+        }
+        return valueRegion;
+      }
+    );
+    setFieldValue('regions', reMakeRegions);
+    handleCloseDialog();
+  };
+
+  const handleRemoveRegion = (id: string) => {
+    if (window.confirm(`정말 삭제하시겠습니까?`)) {
+      const filterRegions = values.regions.filter(
+        (regionFilter: IRouteRoutesRegion) => {
+          return regionFilter.id !== id;
+        }
+      );
+      setFieldValue('regions', filterRegions);
+    }
   };
 
   const moveCard = (id: string, atIndex: number) => {
@@ -52,11 +75,14 @@ function Regions({ setFieldValue, values }: FormikProps<any>) {
       {regions?.map((region: IRouteRoutesRegion) => (
         <RegionCard
           key={region.id}
-          id={`${region.id}`}
+          id={region.id.toString()}
+          time={region.time}
+          placeUrl={region.place_url}
           text={region.place_name}
           moveCard={moveCard}
           findCard={findCard}
           handleOpenDialog={() => handleOpenDialog(region)}
+          handleRemove={handleRemoveRegion}
         />
       ))}
       {open && (

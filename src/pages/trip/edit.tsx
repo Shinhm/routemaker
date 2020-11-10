@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import FirebaseService from '../../services/FirebaseService';
 import { useLocation, useParams } from 'react-router-dom';
 import { IRoute, IRouteRoutes } from '../../models/Route';
@@ -80,17 +80,6 @@ function Edit() {
     regions: [],
   });
 
-  const handleRemovePlace = (count: number) => {
-    setForm((currentValue) => {
-      console.log(currentValue.regions.splice(0, 1));
-      console.log(currentValue.regions.slice(count, count + 1));
-      return {
-        ...currentValue,
-        regions: currentValue.regions,
-      };
-    });
-  };
-
   const handleSubmit = async (formData: IRouteRoutes) => {
     const result = await FirebaseService.getDoc(id);
     const { routes = [], notice = '' } = result.data() || {};
@@ -145,25 +134,28 @@ function Edit() {
     }
   };
 
-  const fetchRoute = async (searchField: string) => {
-    try {
-      const result = await FirebaseService.getCollection().doc(id).get();
-      const { routes } = result.data() as IRoute;
-      const getRoutesWithSearchField = routes
-        .filter((route) => {
-          return route.date === searchField;
-        })
-        .pop();
-      if (getRoutesWithSearchField) {
-        console.log(getRoutesWithSearchField);
-        setForm(getRoutesWithSearchField);
+  const fetchRoute = useCallback(
+    async (searchField: string) => {
+      try {
+        const result = await FirebaseService.getCollection().doc(id).get();
+        const { routes } = result.data() as IRoute;
+        const getRoutesWithSearchField = routes
+          .filter((route) => {
+            return route.date === searchField;
+          })
+          .pop();
+        if (getRoutesWithSearchField) {
+          console.log(getRoutesWithSearchField);
+          setForm(getRoutesWithSearchField);
+        }
+      } catch (e) {
+        console.log(e);
+      } finally {
+        setPending(false);
       }
-    } catch (e) {
-      console.log(e);
-    } finally {
-      setPending(false);
-    }
-  };
+    },
+    [id]
+  );
 
   useEffect(() => {
     if (edit !== EDIT_ENTRY.edit && edit !== EDIT_ENTRY.write) {
@@ -171,11 +163,11 @@ function Edit() {
     }
     if (edit === EDIT_ENTRY.edit) {
       const q = EncryptService.decrypt(query.q.toString());
-      fetchRoute(q);
+      fetchRoute(q).then((r) => r);
     } else {
       setPending(false);
     }
-  }, []);
+  }, [edit, fetchRoute, id, query.q]);
 
   return (
     <Layout
@@ -205,23 +197,6 @@ function Edit() {
                 <Form>
                   <Grid container spacing={3}>
                     <Grid container item xs={6}>
-                      <FormControl fullWidth>
-                        <InputLabel htmlFor="budget">예산</InputLabel>
-                        <Input
-                          id="budget"
-                          defaultValue={budget}
-                          type={'number'}
-                          onChange={(e) => {
-                            const budget = e.target.value;
-                            setFieldValue('budget', budget);
-                          }}
-                          startAdornment={
-                            <InputAdornment position="start">₩</InputAdornment>
-                          }
-                        />
-                      </FormControl>
-                    </Grid>
-                    <Grid container item xs={6}>
                       <TextField
                         label="일정"
                         type="date"
@@ -238,6 +213,23 @@ function Edit() {
                           shrink: true,
                         }}
                       />
+                    </Grid>
+                    <Grid container item xs={6}>
+                      <FormControl fullWidth>
+                        <InputLabel htmlFor="budget">하루예산</InputLabel>
+                        <Input
+                          id="budget"
+                          defaultValue={budget}
+                          type={'number'}
+                          onChange={(e) => {
+                            const budget = e.target.value;
+                            setFieldValue('budget', budget);
+                          }}
+                          startAdornment={
+                            <InputAdornment position="start">₩</InputAdornment>
+                          }
+                        />
+                      </FormControl>
                     </Grid>
                     <Grid container item xs={12}>
                       <Map {...props} />

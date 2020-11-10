@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import FirebaseService from '../../services/FirebaseService';
 import { useParams } from 'react-router-dom';
 import { IRoute, IRouteRoutes } from '../../models/Route';
@@ -12,7 +12,7 @@ function Detail() {
   const [routes, setRoutes] = useState<IRouteRoutes[]>([]);
   const [pending, setPending] = useState(true);
 
-  const fetchRoute = async () => {
+  const fetchRoute = useCallback(async () => {
     try {
       const result = await FirebaseService.getCollection().doc(id).get();
       const { routes = [] } = result.data() as IRoute;
@@ -22,7 +22,7 @@ function Detail() {
     } finally {
       setPending(false);
     }
-  };
+  }, [id]);
 
   useEffect(() => {
     if (!id) {
@@ -31,7 +31,7 @@ function Detail() {
     (async () => {
       await fetchRoute();
     })();
-  }, []);
+  }, [fetchRoute, id]);
 
   return (
     <>

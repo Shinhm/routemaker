@@ -4,14 +4,18 @@ import { createStyles, Grid, Paper, Theme } from '@material-ui/core';
 import SwapVertIcon from '@material-ui/icons/SwapVert';
 import AddAlarmIcon from '@material-ui/icons/AddAlarm';
 import { makeStyles } from '@material-ui/core/styles';
+import DeleteForeverIcon from '@material-ui/icons/DeleteForever';
 import clsx from 'clsx';
 
 export interface CardProps {
   id: string;
   text: string;
+  time?: string;
+  placeUrl: string;
   moveCard: (id: string, to: number) => void;
   findCard: (id: string) => { index: number };
   handleOpenDialog: () => void;
+  handleRemove: (id: string) => void;
 }
 
 interface Item {
@@ -39,9 +43,12 @@ const useStyles = makeStyles((theme: Theme) =>
 function RegionCard({
   id,
   text,
+  time,
+  placeUrl,
   moveCard,
   findCard,
   handleOpenDialog,
+  handleRemove,
 }: CardProps) {
   const classes = useStyles();
   const originalIndex = findCard(id).index;
@@ -83,11 +90,24 @@ function RegionCard({
             <SwapVertIcon fontSize={'small'} />
           </span>
         </Grid>
-        <Grid item xs={8}>
-          <div>{text}</div>
+        <Grid item xs={7}>
+          <div>
+            <a href={placeUrl} target={'_blank'} rel="noreferrer">
+              {text}
+            </a>{' '}
+            {time && `(${time} 방문예정)`}
+          </div>
         </Grid>
-        <Grid item xs={2}>
-          <AddAlarmIcon onClick={handleOpenDialog} fontSize={'small'} />
+        <Grid item xs={3}>
+          <AddAlarmIcon
+            style={{ marginRight: 10 }}
+            onClick={handleOpenDialog}
+            fontSize={'small'}
+          />
+          <DeleteForeverIcon
+            onClick={() => handleRemove(id)}
+            fontSize={'small'}
+          />
         </Grid>
       </Grid>
     </Paper>

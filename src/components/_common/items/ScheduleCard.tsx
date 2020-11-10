@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import {
   Avatar,
   Card,
@@ -12,11 +12,7 @@ import {
   Typography,
 } from '@material-ui/core';
 import { makeStyles } from '@material-ui/core/styles';
-import {
-  IRoute,
-  IRouteRoutes,
-  IRouteRoutesRegion,
-} from '../../../models/Route';
+import { IRouteRoutes, IRouteRoutesRegion } from '../../../models/Route';
 import LinkIcon from '@material-ui/icons/Link';
 import EditIcon from '@material-ui/icons/Edit';
 import { Link, useParams } from 'react-router-dom';
@@ -65,19 +61,30 @@ const useStyles = makeStyles((theme: Theme) =>
     avatar: {
       backgroundColor: '#1D04BF',
     },
+    timeLine: {
+      margin: 0,
+    },
     timeLineItem: {
       '&::before': {
         content: 'none',
       },
     },
     timeLineConnector: {
-      backgroundColor: '#1D04BF',
+      backgroundColor: theme.palette.primary.main,
       opacity: 0.2,
     },
     amount: {
       color: 'red',
       opacity: 1,
       fontSize: 12,
+    },
+    groupName: {
+      color: theme.palette.primary.main,
+      opacity: 1,
+      fontSize: 12,
+    },
+    notice: {
+      textAlign: 'center',
     },
   })
 );
@@ -96,42 +103,55 @@ function ScheduleCard({ id, route, fetchRoute }: ScheduleCardProps) {
   const [open, setOpen] = useState(false);
   const [region, setRegion] = useState(regions[0]);
 
-  const addMarker = (position: string, idx: number, map: any) => {
-    const content = renderToString(<StarMarker />);
-    const marker = new kakao.maps.CustomOverlay({
-      position: position,
-      content: content,
-    });
+  const addMarker = useCallback(
+    (position: string, idx: number, map: any) => {
+      const content = renderToString(
+        <StarMarker idx={idx} end={regions.length} />
+      );
+      const marker = new kakao.maps.CustomOverlay({
+        position: position,
+        content: content,
+      });
 
-    marker.setMap(map);
-  };
+      marker.setMap(map);
+    },
+    [kakao.maps.CustomOverlay, regions.length]
+  );
 
-  const polyLinePlaces = async (map: any) => {
-    const linePath = await regions.map((region) => {
-      return new kakao.maps.LatLng(region.y, region.x);
-    });
+  const polyLinePlaces = useCallback(
+    async (map: any) => {
+      const linePath = await regions.map((region) => {
+        return new kakao.maps.LatLng(region.y, region.x);
+      });
 
-    const polyline = new kakao.maps.Polyline({
-      path: linePath,
-      strokeWeight: 2,
-      strokeColor: '#1D04BF',
-      strokeOpacity: 0.7,
-      strokeStyle: 'solid',
-    });
+      const polyline = new kakao.maps.Polyline({
+        path: linePath,
+        strokeWeight: 2,
+        strokeColor: '#1D04BF',
+        strokeOpacity: 0.7,
+        strokeStyle: 'solid',
+      });
 
-    polyline.setMap(map);
-  };
+      polyline.setMap(map);
+    },
+    [kakao.maps.LatLng, kakao.maps.Polyline, regions]
+  );
 
-  const displayPlaces = (places: any[], map: any) => {
-    const bounds = new kakao.maps.LatLngBounds();
-    places.map((place, index) => {
-      const placePosition = new kakao.maps.LatLng(place.y, place.x);
-      addMarker(placePosition, index, map);
-      bounds.extend(placePosition);
-    });
-    polyLinePlaces(map);
-    map.setBounds(bounds);
-  };
+  const displayPlaces = useCallback(
+    (places: any[], map: any) => {
+      const bounds = new kakao.maps.LatLngBounds();
+      places.forEach((place, index) => {
+        const placePosition = new kakao.maps.LatLng(place.y, place.x);
+        addMarker(placePosition, index, map);
+        bounds.extend(placePosition);
+      });
+      map.setBounds(bounds);
+      (async (map) => {
+        await polyLinePlaces(map);
+      })(map);
+    },
+    [addMarker, kakao.maps.LatLng, kakao.maps.LatLngBounds, polyLinePlaces]
+  );
 
   const handleCompare = (a: string, b: string) => {
     const changeA = parseInt(a.replaceAll('-', ''));
@@ -192,7 +212,7 @@ function ScheduleCard({ id, route, fetchRoute }: ScheduleCardProps) {
     const map = new kakao.maps.Map(container, options);
 
     displayPlaces(regions, map);
-  }, []);
+  }, [date, displayPlaces, kakao.maps.LatLng, kakao.maps.Map, regions]);
 
   return (
     <>
@@ -211,13 +231,21 @@ function ScheduleCard({ id, route, fetchRoute }: ScheduleCardProps) {
         <div id={`map${date}`} className={classes.media} />
         <CardContent className={classes.cardContent}>
           <Typography variant="body2" color="textSecondary" component="p">
-            <Timeline>
+            <Timeline className={classes.timeLine}>
               {regions.map((region, index) => {
                 return (
                   <React.Fragment key={`region${index}`}>
                     <TimelineItem className={classes.timeLineItem}>
                       <TimelineSeparator>
-                        <TimelineDot variant="outlined" color={'primary'} />
+                        <TimelineDot
+                          variant="outlined"
+                          style={{
+                            borderColor:
+                              (index === 0 && 'green') ||
+                              (index === regions.length - 1 && 'red') ||
+                              '#1D04BF',
+                          }}
+                        />
                         {regions.length !== index + 1 && (
                           <TimelineConnector
                             className={classes.timeLineConnector}
@@ -227,14 +255,33 @@ function ScheduleCard({ id, route, fetchRoute }: ScheduleCardProps) {
                       <TimelineContent>
                         <Grid container>
                           <Grid item xs={11}>
-                            {region.place_name}
+                            <a
+                              href={region.place_url}
+                              target={'_blank'}
+                              rel="noreferrer"
+                            >
+                              {region.place_name}{' '}
+                            </a>
+                            <span className={classes.groupName}>
+                              [{region.category_group_name}]
+                            </span>
                             <br />
+                            {region?.time && (
+                              <span className={classes.groupName}>
+                                {region.time}에 방문예정
+                              </span>
+                            )}
                             {region?.amount && (
-                              <span
-                                className={classes.amount}
-                              >{`사용금액: ${parseInt(
-                                region.amount
-                              ).toLocaleString()}원`}</span>
+                              <>
+                                <span className={classes.groupName}>
+                                  {' | '}
+                                </span>
+                                <span
+                                  className={classes.amount}
+                                >{`사용금액: ${parseInt(
+                                  region.amount
+                                ).toLocaleString()}원`}</span>
+                              </>
                             )}
                           </Grid>
                           <Grid item xs={1}>
@@ -259,6 +306,9 @@ function ScheduleCard({ id, route, fetchRoute }: ScheduleCardProps) {
               })}
             </Timeline>
           </Typography>
+          <p className={classes.notice}>
+            * 계획한 날짜가되면 금액작성 버튼이 생성됩니다.
+          </p>
         </CardContent>
         <CardActions disableSpacing>
           <IconButton aria-label="link">

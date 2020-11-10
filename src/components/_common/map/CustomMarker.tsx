@@ -37,7 +37,7 @@ function CustomMarker({ region }: CustomMarkerProps) {
       <CardContent>
         <div>
           <h3>
-            <a href={region.place_url} target={'_blank'}>
+            <a href={region.place_url} target={'_blank'} rel="noreferrer">
               {region.place_name}
             </a>
           </h3>

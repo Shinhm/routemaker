@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import {
   Button,
   Dialog,
@@ -22,7 +22,7 @@ const Transition = React.forwardRef(function Transition(
 
 interface SimpleDialogProps {
   handleCloseDialog: () => void;
-  handleConfirmDialog: (region: IRouteRoutesRegion) => void;
+  handleConfirmDialog: (region: IRouteRoutesRegion, time: string) => void;
   region: IRouteRoutesRegion;
 }
 
@@ -31,6 +31,8 @@ function EditDialog({
   handleConfirmDialog,
   region,
 }: SimpleDialogProps) {
+  const [time, setTime] = useState(region.time || format(new Date(), 'HH:mm'));
+
   return (
     <Dialog
       open={true}
@@ -41,7 +43,7 @@ function EditDialog({
       aria-describedby="alert-dialog-slide-description"
     >
       <DialogTitle id="alert-dialog-slide-title">
-        <a href={region.place_url} target={'_blank'}>
+        <a href={region.place_url} target={'_blank'} rel="noreferrer">
           {region.place_name}
         </a>
       </DialogTitle>
@@ -52,6 +54,10 @@ function EditDialog({
             label="방문예정시간"
             type="time"
             defaultValue={region.time || format(new Date(), 'HH:mm')}
+            onChange={(e) => {
+              const time = e.target.value;
+              setTime(time);
+            }}
             InputLabelProps={{
               shrink: true,
             }}
@@ -65,7 +71,10 @@ function EditDialog({
         <Button color="primary" onClick={handleCloseDialog}>
           취소
         </Button>
-        <Button color="primary" onClick={() => handleConfirmDialog(region)}>
+        <Button
+          color="primary"
+          onClick={() => handleConfirmDialog(region, time)}
+        >
           수정
         </Button>
       </DialogActions>
