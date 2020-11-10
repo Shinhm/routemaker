@@ -1,14 +1,20 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import FirebaseService from '../../services/FirebaseService';
-import { useParams } from 'react-router-dom';
+import { useLocation, useParams } from 'react-router-dom';
 import { IRoute, IRouteRoutes } from '../../models/Route';
 import Layout from '../../components/_common/layout/Layout';
 import ScheduleCard from '../../components/_common/items/ScheduleCard';
 import Empty from '../../components/_common/layout/Empty';
 import { LinearProgress } from '@material-ui/core';
+import qs from 'querystring';
+
+function useQuery() {
+  return qs.parse(useLocation().search.replace('?', ''));
+}
 
 function Detail() {
   const { id }: { id: string } = useParams();
+  const query = useQuery();
   const [routes, setRoutes] = useState<IRouteRoutes[]>([]);
   const [pending, setPending] = useState(true);
 
@@ -28,10 +34,15 @@ function Detail() {
     if (!id) {
       window.location.replace('/enter');
     }
+    if (query.scroll) {
+      setTimeout(() => {
+        document.getElementById(query.scroll.toString())?.scrollIntoView();
+      }, 500);
+    }
     (async () => {
       await fetchRoute();
     })();
-  }, [fetchRoute, id]);
+  }, [fetchRoute, id, query.scroll]);
 
   return (
     <>

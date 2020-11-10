@@ -1,6 +1,7 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import {
   Avatar,
+  Button,
   Card,
   CardActions,
   CardContent,
@@ -8,6 +9,7 @@ import {
   createStyles,
   Grid,
   IconButton,
+  Snackbar,
   Theme,
   Typography,
 } from '@material-ui/core';
@@ -33,6 +35,7 @@ import AmountDialog from '../dialogs/AmountDialog';
 import FirebaseService from '../../../services/FirebaseService';
 import { renderToString } from 'react-dom/server';
 import StarMarker from '../map/StarMarker';
+import ClipboardJS from 'clipboard';
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -102,6 +105,7 @@ function ScheduleCard({ id, route, fetchRoute }: ScheduleCardProps) {
   const { id: inviteCode }: { id: string } = useParams();
   const { date, regions, budget } = route;
   const [open, setOpen] = useState(false);
+  const [openSnack, setOpenSnack] = useState<boolean>(false);
   const [region, setRegion] = useState(regions[0]);
 
   const addMarker = useCallback(
@@ -215,9 +219,21 @@ function ScheduleCard({ id, route, fetchRoute }: ScheduleCardProps) {
     displayPlaces(regions, map);
   }, [date, displayPlaces, kakao.maps.LatLng, kakao.maps.Map, regions]);
 
+  useEffect(() => {
+    const clipboardUrl = new ClipboardJS('.copy_url_btn');
+    clipboardUrl.on('success', function (e) {
+      e.clearSelection();
+    });
+  }, []);
+
   return (
     <>
-      <Card className={classes.root}>
+      <Snackbar
+        anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
+        open={openSnack}
+        message="공유 URL이 복사되었습니다."
+      />
+      <Card className={classes.root} id={date}>
         <CardHeader
           avatar={
             <Avatar aria-label="recipe" className={classes.avatar}>
@@ -313,7 +329,19 @@ function ScheduleCard({ id, route, fetchRoute }: ScheduleCardProps) {
           </p>
         </CardContent>
         <CardActions disableSpacing>
-          <IconButton aria-label="link">
+          <IconButton
+            aria-label="link"
+            className={'copy_url_btn'}
+            data-clipboard-text={`${
+              window.location.href
+            }?sr=${EncryptService.encrypt('codeEnabled')}&scroll=${date}`}
+            onClick={() => {
+              setOpenSnack(true);
+              setTimeout(() => {
+                setOpenSnack(false);
+              }, 1000);
+            }}
+          >
             <LinkIcon />
           </IconButton>
           <Link to={`/${id}/edit?q=${EncryptService.encrypt(date)}`}>
