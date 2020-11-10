@@ -53,6 +53,7 @@ function EditDialog({
             id="time"
             label="방문예정시간"
             type="time"
+            style={{ width: 200 }}
             defaultValue={region.time || format(new Date(), 'HH:mm')}
             onChange={(e) => {
               const time = e.target.value;

@@ -8,6 +8,8 @@ import { FormikProps } from 'formik';
 import { TouchBackend } from 'react-dnd-touch-backend';
 import Regions from './Regions';
 import { DndProvider } from 'react-dnd';
+import { useParams } from 'react-router-dom';
+import { EDIT_ENTRY } from '../../pages/trip/edit';
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -32,6 +34,8 @@ function Map(formikProps: FormikProps<any>) {
   const { setFieldValue, values } = formikProps;
   const classes = useStyles();
   const kakao = (window as any).kakao;
+  const { edit }: { edit: string } = useParams();
+  const [openMap, setOpenMap] = useState(edit === EDIT_ENTRY.write);
   const [message, setMessage] = useState('');
   const [open, setOpen] = useState(false);
   const [map, setMap] = useState<any>();
@@ -47,6 +51,7 @@ function Map(formikProps: FormikProps<any>) {
 
   const searchPlaces = (keyword: string) => {
     document.getElementById('standard-basic')?.blur();
+    setOpenMap(true);
     const ps = new kakao.maps.services.Places();
 
     if (!keyword.replace(/^\s+|\s+$/g, '')) {
@@ -58,7 +63,10 @@ function Map(formikProps: FormikProps<any>) {
   };
 
   const handleClick = (e: any) => {
-    if (e.target.className?.split(' ').pop() === 'custom_marker_click') {
+    if (
+      e.target.localName === 'button' &&
+      e.target.className?.split(' ').pop() === 'custom_marker_click'
+    ) {
       const keywordInputEl = document.getElementById(
         'standard-basic'
       ) as HTMLInputElement;
@@ -133,8 +141,10 @@ function Map(formikProps: FormikProps<any>) {
   }, [kakao.maps.LatLng, kakao.maps.Map]);
 
   useEffect(() => {
-    loadMap();
-  }, [loadMap]);
+    if (openMap) {
+      loadMap();
+    }
+  }, [loadMap, openMap]);
 
   return (
     <>
@@ -148,6 +158,9 @@ function Map(formikProps: FormikProps<any>) {
         label="검색어를 입력해주세요."
         style={{ width: '100%' }}
         variant={'filled'}
+        onClick={() => {
+          setOpenMap(true);
+        }}
         onKeyPress={(e: any) => {
           const keyword = e.target.value;
           if (e.key === 'Enter') {
@@ -155,7 +168,7 @@ function Map(formikProps: FormikProps<any>) {
           }
         }}
       />
-      <div id={'map'} className={classes.map} />
+      {openMap && <div id={'map'} className={classes.map} />}
       <div className={classes.mapBottom} />
       <DndProvider backend={TouchBackend}>
         <Regions {...formikProps} />

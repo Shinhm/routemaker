@@ -23,7 +23,7 @@ import { format } from 'date-fns';
 import { Form, Formik, FormikProps } from 'formik';
 import Map from '../../components/trip/Map';
 
-enum EDIT_ENTRY {
+export enum EDIT_ENTRY {
   write = 'write',
   edit = 'edit',
 }
@@ -146,7 +146,6 @@ function Edit() {
           })
           .pop();
         if (getRoutesWithSearchField) {
-          console.log(getRoutesWithSearchField);
           setForm(getRoutesWithSearchField);
         }
       } catch (e) {

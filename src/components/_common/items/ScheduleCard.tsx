@@ -263,9 +263,11 @@ function ScheduleCard({ id, route, fetchRoute }: ScheduleCardProps) {
                             >
                               {region.place_name}{' '}
                             </a>
-                            <span className={classes.groupName}>
-                              [{region.category_group_name}]
-                            </span>
+                            {region.category_group_name && (
+                              <span className={classes.groupName}>
+                                [{region.category_group_name}]
+                              </span>
+                            )}
                             <br />
                             {region?.time && (
                               <span className={classes.groupName}>
