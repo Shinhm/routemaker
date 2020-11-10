@@ -27,7 +27,7 @@ import {
   TimelineSeparator,
 } from '@material-ui/lab';
 import PostAddIcon from '@material-ui/icons/PostAdd';
-import Enum from '../../../constants/Enum';
+import Enum, { REGION_CATEGORY } from '../../../constants/Enum';
 import { format } from 'date-fns';
 import AmountDialog from '../dialogs/AmountDialog';
 import FirebaseService from '../../../services/FirebaseService';
@@ -85,6 +85,7 @@ const useStyles = makeStyles((theme: Theme) =>
     },
     notice: {
       textAlign: 'center',
+      fontSize: 11,
     },
   })
 );
@@ -153,10 +154,10 @@ function ScheduleCard({ id, route, fetchRoute }: ScheduleCardProps) {
     [addMarker, kakao.maps.LatLng, kakao.maps.LatLngBounds, polyLinePlaces]
   );
 
-  const handleCompare = (a: string, b: string) => {
-    const changeA = parseInt(a.replaceAll('-', ''));
-    const changeB = parseInt(b.replaceAll('-', ''));
-    return changeA >= changeB;
+  const handleCompare = (date: string) => {
+    const now = parseInt(format(new Date(), 'yyyy-MM-dd').replaceAll('-', ''));
+    const dateTime = parseInt(date.replaceAll('-', ''));
+    return now >= dateTime;
   };
 
   const handleOpenDialog = (region: IRouteRoutesRegion) => {
@@ -271,27 +272,24 @@ function ScheduleCard({ id, route, fetchRoute }: ScheduleCardProps) {
                                 {region.time}에 방문예정
                               </span>
                             )}
+                            {region?.time && region?.amount && (
+                              <span className={classes.groupName}>{' | '}</span>
+                            )}
                             {region?.amount && (
-                              <>
-                                <span className={classes.groupName}>
-                                  {' | '}
-                                </span>
-                                <span
-                                  className={classes.amount}
-                                >{`사용금액: ${parseInt(
-                                  region.amount
-                                ).toLocaleString()}원`}</span>
-                              </>
+                              <span
+                                className={classes.amount}
+                              >{`사용금액: ${parseInt(
+                                region.amount
+                              ).toLocaleString()}원`}</span>
                             )}
                           </Grid>
                           <Grid item xs={1}>
-                            {handleCompare(
-                              format(new Date(), 'yyyy-MM-dd'),
-                              date
+                            {Enum.possibleCategory(
+                              region.category_group_code
                             ) &&
-                              Enum.possibleCategory(
-                                region.category_group_code
-                              ) && (
+                              (region.category_group_code ===
+                                REGION_CATEGORY.AD5 ||
+                                handleCompare(date)) && (
                                 <PostAddIcon
                                   fontSize={'small'}
                                   onClick={() => handleOpenDialog(region)}
@@ -307,7 +305,9 @@ function ScheduleCard({ id, route, fetchRoute }: ScheduleCardProps) {
             </Timeline>
           </Typography>
           <p className={classes.notice}>
-            * 계획한 날짜가되면 금액작성 버튼이 생성됩니다.
+            * [숙박] 카테고리를 제외한 모든 카테고리들은
+            <br />
+            계획한 날짜가 되면 금액작성 버튼이 생성됩니다.
           </p>
         </CardContent>
         <CardActions disableSpacing>
