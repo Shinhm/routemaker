@@ -1,29 +1,36 @@
 import Card from '@material-ui/core/Card';
 import React from 'react';
 import { IRouteRoutesRegion } from '../../../models/Route';
-import { CardActions, CardContent } from '@material-ui/core';
+import {
+  CardActions,
+  CardContent,
+  createStyles,
+  Theme,
+} from '@material-ui/core';
 import { makeStyles } from '@material-ui/core/styles';
 import clsx from 'clsx';
 
-const useStyles = makeStyles({
-  root: {
-    minWidth: 150,
-    paddingBottom: 5,
-  },
-  title: {
-    fontSize: 10,
-  },
-  pos: {
-    marginBottom: 12,
-  },
-  custom_marker: {
-    width: '100%',
-    backgroundColor: '#1D04BF',
-    border: 'none',
-    color: '#fff',
-    outline: 'none',
-  },
-});
+const useStyles = makeStyles((theme: Theme) =>
+  createStyles({
+    root: {
+      minWidth: 150,
+      paddingBottom: 5,
+    },
+    title: {
+      fontSize: 10,
+    },
+    pos: {
+      marginBottom: 12,
+    },
+    custom_marker: {
+      width: '100%',
+      backgroundColor: theme.palette.primary.main,
+      border: 'none',
+      color: '#fff',
+      outline: 'none',
+    },
+  })
+);
 
 interface CustomMarkerProps {
   region: IRouteRoutesRegion;

@@ -5,6 +5,7 @@ import {
   Route,
   Redirect,
   useLocation,
+  withRouter,
 } from 'react-router-dom';
 import Detail from './trip/detail';
 import Edit from './trip/edit';
@@ -12,6 +13,7 @@ import Index from './index';
 import SessionStorageService from '../services/SessionStorageService';
 import EncryptService from '../services/EncryptService';
 import qs from 'querystring';
+import Receipt from './trip/receipt';
 
 interface IPrivateRoute {
   children: React.ReactNode;
@@ -53,6 +55,9 @@ function RouterProvider() {
       <Switch>
         <PrivateRoute path="/:id/trip">
           <Detail />
+        </PrivateRoute>
+        <PrivateRoute path="/:id/receipt">
+          <Receipt />
         </PrivateRoute>
         <PrivateRoute path="/:id/:edit">
           <Edit />

@@ -1,6 +1,6 @@
 {
   "hosting": {
-    "site": "rouermake",
+    "site": "we-route",
     "public": "build",
     "ignore": [
       "firebase.json",

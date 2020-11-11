@@ -3,6 +3,7 @@ import './styles/App.css';
 import RouterProvider from './pages/router';
 import { createMuiTheme } from '@material-ui/core/styles';
 import { ThemeProvider } from '@material-ui/styles';
+import { withRouter } from 'react-router-dom';
 
 const theme = createMuiTheme({
   palette: {
@@ -33,4 +34,4 @@ function App() {
   );
 }
 
-export default App;
+export default withRouter(App);

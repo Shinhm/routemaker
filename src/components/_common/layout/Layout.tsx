@@ -18,7 +18,6 @@ import EncryptService from '../../../services/EncryptService';
 import ClipboardJS from 'clipboard';
 import AddIcon from '@material-ui/icons/Add';
 import { Link } from 'react-router-dom';
-import { useHistory } from 'react-router-dom';
 
 export interface State extends SnackbarOrigin {
   open: boolean;
@@ -29,6 +28,7 @@ const useStyles = makeStyles((theme: Theme) =>
     root: {
       flexGrow: 1,
       paddingBottom: 150,
+      paddingTop: 40,
     },
     menuButton: {
       color: '#fff',
@@ -62,7 +62,6 @@ interface ILayoutProps {
 
 function Layout({ children, appbar }: ILayoutProps) {
   const classes = useStyles();
-  const history = useHistory();
   const {
     title,
     id,
@@ -81,10 +80,10 @@ function Layout({ children, appbar }: ILayoutProps) {
 
   return (
     <div className={classes.root}>
-      <AppBar position="static">
+      <AppBar position="fixed">
         <Toolbar variant="dense">
           {enabledPrevButton && (
-            <a href={'#none'} onClick={() => history.goBack()}>
+            <Link to={`/${id}/trip`}>
               <IconButton
                 edge="start"
                 className={classes.menuButton}
@@ -93,7 +92,7 @@ function Layout({ children, appbar }: ILayoutProps) {
               >
                 <NavigateBeforeIcon />
               </IconButton>
-            </a>
+            </Link>
           )}
           <Typography variant="h6" className={classes.title}>
             {title}
@@ -103,8 +102,8 @@ function Layout({ children, appbar }: ILayoutProps) {
               <Button
                 color="inherit"
                 className={'copy_url_btn'}
-                data-clipboard-text={`${
-                  window.location.href
+                data-clipboard-text={`${window.location.origin}/${
+                  window.location.pathname
                 }?sr=${EncryptService.encrypt('codeEnabled')}`}
                 onClick={() => {
                   setOpen(true);

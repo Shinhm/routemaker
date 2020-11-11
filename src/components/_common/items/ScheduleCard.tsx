@@ -1,7 +1,6 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import {
   Avatar,
-  Button,
   Card,
   CardActions,
   CardContent,
@@ -29,6 +28,7 @@ import {
   TimelineSeparator,
 } from '@material-ui/lab';
 import PostAddIcon from '@material-ui/icons/PostAdd';
+import ReceiptIcon from '@material-ui/icons/Receipt';
 import Enum, { REGION_CATEGORY } from '../../../constants/Enum';
 import { format } from 'date-fns';
 import AmountDialog from '../dialogs/AmountDialog';
@@ -62,7 +62,7 @@ const useStyles = makeStyles((theme: Theme) =>
       transform: 'rotate(180deg)',
     },
     avatar: {
-      backgroundColor: '#1D04BF',
+      backgroundColor: theme.palette.primary.main,
     },
     timeLine: {
       margin: 0,
@@ -332,8 +332,8 @@ function ScheduleCard({ id, route, fetchRoute }: ScheduleCardProps) {
           <IconButton
             aria-label="link"
             className={'copy_url_btn'}
-            data-clipboard-text={`${
-              window.location.href
+            data-clipboard-text={`${window.location.origin}/${
+              window.location.pathname
             }?sr=${EncryptService.encrypt('codeEnabled')}&scroll=${date}`}
             onClick={() => {
               setOpenSnack(true);
@@ -347,6 +347,11 @@ function ScheduleCard({ id, route, fetchRoute }: ScheduleCardProps) {
           <Link to={`/${id}/edit?q=${EncryptService.encrypt(date)}`}>
             <IconButton aria-label="link">
               <EditIcon />
+            </IconButton>
+          </Link>
+          <Link to={`/${id}/receipt?q=${EncryptService.encrypt(date)}`}>
+            <IconButton>
+              <ReceiptIcon />
             </IconButton>
           </Link>
         </CardActions>
