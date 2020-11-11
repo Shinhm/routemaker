@@ -327,6 +327,9 @@ function ScheduleCard({ id, route, fetchRoute }: ScheduleCardProps) {
             <br />
             계획한 날짜가 되면 금액작성 버튼이 생성됩니다.
           </p>
+          <p className={classes.notice}>
+            * 영수증은 루트에 설정된 날짜가 되면 볼 수 있습니다.
+          </p>
         </CardContent>
         <CardActions disableSpacing>
           <IconButton
@@ -349,11 +352,13 @@ function ScheduleCard({ id, route, fetchRoute }: ScheduleCardProps) {
               <EditIcon />
             </IconButton>
           </Link>
-          <Link to={`/${id}/receipt?q=${EncryptService.encrypt(date)}`}>
-            <IconButton>
-              <ReceiptIcon />
-            </IconButton>
-          </Link>
+          {handleCompare(date) && (
+            <Link to={`/${id}/receipt?q=${EncryptService.encrypt(date)}`}>
+              <IconButton>
+                <ReceiptIcon />
+              </IconButton>
+            </Link>
+          )}
         </CardActions>
       </Card>
       {open && (

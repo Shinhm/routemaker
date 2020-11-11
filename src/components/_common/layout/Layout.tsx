@@ -30,6 +30,11 @@ const useStyles = makeStyles((theme: Theme) =>
       paddingBottom: 150,
       paddingTop: 40,
     },
+    appBar: {
+      width: 400,
+      left: '50%',
+      marginLeft: -200,
+    },
     menuButton: {
       color: '#fff',
     },
@@ -80,7 +85,7 @@ function Layout({ children, appbar }: ILayoutProps) {
 
   return (
     <div className={classes.root}>
-      <AppBar position="fixed">
+      <AppBar position="fixed" className={classes.appBar}>
         <Toolbar variant="dense">
           {enabledPrevButton && (
             <Link to={`/${id}/trip`}>
