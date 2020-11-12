@@ -53,8 +53,7 @@ function Map(formikProps: FormikProps<any>) {
   const [pickRegion, setPickRegion] = useState<IRouteRoutesRegion>();
   const [open, setOpen] = useState(false);
   const [map, setMap] = useState<any>();
-  let markers: any[] = [];
-
+  const [markers, setMarkers] = useState<any[]>([]);
   const handleOpenSnackBar = (message: string) => {
     setMessage(message);
     setOpen(true);
@@ -64,7 +63,6 @@ function Map(formikProps: FormikProps<any>) {
   };
 
   const searchPlaces = (keyword: string) => {
-    removeMarker();
     document.getElementById('standard-basic')?.blur();
     setOpenMap(true);
     const ps = new kakao.maps.services.Places();
@@ -107,12 +105,13 @@ function Map(formikProps: FormikProps<any>) {
     }
   };
 
-  const removeMarker = () => {
-    for (let i = 0; i < markers.length; i++) {
-      markers[i].setMap(null);
-    }
-    markers = [];
-  };
+  const removeMarker = useCallback(() => {
+    console.log(markers);
+    markers.forEach((marker) => {
+      marker.setMap(null);
+    });
+    setMarkers([]);
+  }, [markers]);
 
   const addMarker = (position: string, place: IRouteRoutesRegion) => {
     // const imageSrc = markerImg;
@@ -140,11 +139,13 @@ function Map(formikProps: FormikProps<any>) {
   const displayPlaces = (places: IRouteRoutesRegion[]) => {
     const bounds = new kakao.maps.LatLngBounds();
     removeMarker();
+    let markerArray: any[] = [];
     places.forEach((place) => {
       const placePosition = new kakao.maps.LatLng(place.y, place.x);
-      addMarker(placePosition, place);
+      markerArray.push(addMarker(placePosition, place));
       bounds.extend(placePosition);
     });
+    setMarkers(markerArray);
     map.setBounds(bounds);
   };
 
