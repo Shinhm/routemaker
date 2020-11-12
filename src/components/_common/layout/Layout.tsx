@@ -4,9 +4,9 @@ import {
   Button,
   createStyles,
   Fab,
+  Grid,
   IconButton,
   Snackbar,
-  SnackbarOrigin,
   Theme,
   Toolbar,
   Typography,
@@ -83,45 +83,58 @@ function Layout({ children, appbar }: ILayoutProps) {
     <div className={classes.root}>
       <AppBar position="fixed" className={classes.appBar}>
         <Toolbar variant="dense">
-          {enabledPrevButton && (
-            <Link to={`/${id}/trip`}>
-              <IconButton
-                edge="start"
-                className={classes.menuButton}
-                color="inherit"
-                aria-label="menu"
-              >
-                <NavigateBeforeIcon />
-              </IconButton>
-            </Link>
-          )}
-          <Typography variant="h6" className={classes.title}>
-            {title}
-          </Typography>
-          {enabledMenuButton && (
-            <>
-              <Button
-                color="inherit"
-                className={'copy_url_btn'}
-                data-clipboard-text={`${window.location.origin}${
-                  window.location.pathname
-                }?sr=${EncryptService.encrypt('codeEnabled')}`}
-                onClick={() => {
-                  setOpen(true);
-                  setTimeout(() => {
-                    setOpen(false);
-                  }, 1000);
-                }}
-              >
-                <LinkIcon />
-              </Button>
-              <Snackbar
-                anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
-                open={open}
-                message="공유 URL이 복사되었습니다."
-              />
-            </>
-          )}
+          <Grid
+            container
+            direction="row"
+            justify="space-around"
+            alignItems="center"
+          >
+            <Grid item xs={1}>
+              {enabledPrevButton && (
+                <Link to={`/${id}/trip`}>
+                  <IconButton
+                    edge="start"
+                    className={classes.menuButton}
+                    color="inherit"
+                    aria-label="menu"
+                  >
+                    <NavigateBeforeIcon />
+                  </IconButton>
+                </Link>
+              )}
+            </Grid>
+            <Grid item xs={9}>
+              <Typography variant="h6" className={classes.title}>
+                {title}
+              </Typography>
+            </Grid>
+            <Grid item xs={2}>
+              {enabledMenuButton && (
+                <>
+                  <Button
+                    color="inherit"
+                    className={'copy_url_btn'}
+                    data-clipboard-text={`${window.location.origin}${
+                      window.location.pathname
+                    }?sr=${EncryptService.encrypt('codeEnabled')}`}
+                    onClick={() => {
+                      setOpen(true);
+                      setTimeout(() => {
+                        setOpen(false);
+                      }, 1000);
+                    }}
+                  >
+                    <LinkIcon />
+                  </Button>
+                  <Snackbar
+                    anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
+                    open={open}
+                    message="공유 URL이 복사되었습니다."
+                  />
+                </>
+              )}
+            </Grid>
+          </Grid>
         </Toolbar>
       </AppBar>
       {children}
