@@ -51,11 +51,13 @@ function CustomMarker({ region, handleSelect }: CustomMarkerProps) {
                   {region.place_name}
                 </a>
               </h3>
+              {region.category_group_name && (
+                <span style={{ paddingLeft: 5, fontSize: 12 }}>
+                  {region.category_name}
+                </span>
+              )}
             </div>
-            <div className={classes.pos}>
-              <h6>{region.category_name}</h6>
-            </div>
-            <p style={{ margin: 0, fontSize: 10 }}>
+            <p style={{ margin: 0, fontSize: 13 }}>
               {region.address_name}
               <br />
               {region.phone && <span>Tel.{region.phone}</span>}

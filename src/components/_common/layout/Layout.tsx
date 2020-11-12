@@ -117,9 +117,7 @@ function Layout({ children, appbar }: ILayoutProps) {
                   <Button
                     color="inherit"
                     className={'copy_url_btn'}
-                    data-clipboard-text={`${window.location.origin}${
-                      window.location.pathname
-                    }?sr=${EncryptService.encrypt('codeEnabled')}`}
+                    data-clipboard-text={`${window.location.origin}${window.location.pathname}`}
                     onClick={() => {
                       setOpen(true);
                       setTimeout(() => {

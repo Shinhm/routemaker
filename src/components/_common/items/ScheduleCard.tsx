@@ -339,9 +339,7 @@ function ScheduleCard({ id, route, fetchRoute }: ScheduleCardProps) {
           <IconButton
             aria-label="link"
             className={'copy_url_btn'}
-            data-clipboard-text={`${window.location.origin}/${
-              window.location.pathname
-            }?sr=${EncryptService.encrypt('codeEnabled')}&scroll=${date}`}
+            data-clipboard-text={`${window.location.origin}${window.location.pathname}?scroll=${date}`}
             onClick={() => {
               setOpenSnack(true);
               setTimeout(() => {

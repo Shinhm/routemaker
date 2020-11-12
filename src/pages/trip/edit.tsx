@@ -54,9 +54,10 @@ const useStyles = makeStyles((theme: Theme) =>
     submitButton: {
       backgroundColor: theme.palette.primary.main,
       color: '#fff',
-      height: 60,
+      height: 50,
       fontSize: 17,
       width: 400,
+      fontWeight: 500,
       position: 'fixed',
       marginLeft: '-200px',
       bottom: 0,
