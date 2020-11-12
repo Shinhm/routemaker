@@ -53,15 +53,15 @@ function RouterProvider() {
   return (
     <Router>
       <Switch>
-        <PrivateRoute path="/:id/trip">
+        <Route path="/:id/trip">
           <Detail />
-        </PrivateRoute>
-        <PrivateRoute path="/:id/receipt">
+        </Route>
+        <Route path="/:id/receipt">
           <Receipt />
-        </PrivateRoute>
-        <PrivateRoute path="/:id/:edit">
+        </Route>
+        <Route path="/:id/:edit">
           <Edit />
-        </PrivateRoute>
+        </Route>
         <Route path="/enter">
           <Index />
         </Route>
