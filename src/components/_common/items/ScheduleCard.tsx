@@ -40,7 +40,7 @@ import ClipboardJS from 'clipboard';
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
     root: {
-      maxWidth: 320,
+      maxWidth: 340,
       margin: '30px auto',
       textAlign: 'left',
     },

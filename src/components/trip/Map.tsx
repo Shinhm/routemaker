@@ -1,7 +1,6 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import { createStyles, Snackbar, TextField, Theme } from '@material-ui/core';
 import { IRouteRoutesRegion } from '../../models/Route';
-import { renderToString } from 'react-dom/server';
 import CustomMarker from '../_common/map/CustomMarker';
 import { makeStyles } from '@material-ui/core/styles';
 import { FormikProps } from 'formik';
@@ -15,7 +14,7 @@ const useStyles = makeStyles((theme: Theme) =>
   createStyles({
     map: {
       width: '100%',
-      height: 350,
+      height: 200,
     },
     mapBottom: {
       backgroundColor: 'rgba(0, 0, 0, 0.09)',
@@ -27,6 +26,20 @@ const useStyles = makeStyles((theme: Theme) =>
     dnd: {
       paddingTop: 30,
     },
+    root: {
+      minWidth: 275,
+    },
+    bullet: {
+      display: 'inline-block',
+      margin: '0 2px',
+      transform: 'scale(0.8)',
+    },
+    title: {
+      fontSize: 14,
+    },
+    pos: {
+      marginBottom: 12,
+    },
   })
 );
 
@@ -37,9 +50,10 @@ function Map(formikProps: FormikProps<any>) {
   const { edit }: { edit: string } = useParams();
   const [openMap, setOpenMap] = useState(edit === EDIT_ENTRY.write);
   const [message, setMessage] = useState('');
+  const [pickRegion, setPickRegion] = useState<IRouteRoutesRegion>();
   const [open, setOpen] = useState(false);
   const [map, setMap] = useState<any>();
-  let overlays: any[] = [];
+  let markers: any[] = [];
 
   const handleOpenSnackBar = (message: string) => {
     setMessage(message);
@@ -50,6 +64,7 @@ function Map(formikProps: FormikProps<any>) {
   };
 
   const searchPlaces = (keyword: string) => {
+    removeMarker();
     document.getElementById('standard-basic')?.blur();
     setOpenMap(true);
     const ps = new kakao.maps.services.Places();
@@ -58,62 +73,68 @@ function Map(formikProps: FormikProps<any>) {
       handleOpenSnackBar('검색어를 입력해주세요.');
       return;
     }
-
+    setPickRegion(undefined);
     ps.keywordSearch(keyword, placesSearch);
   };
 
-  const handleClick = (e: any) => {
-    if (
-      e.target.localName === 'button' &&
-      e.target.className?.split(' ').pop() === 'custom_marker_click'
-    ) {
-      const keywordInputEl = document.getElementById(
-        'standard-basic'
-      ) as HTMLInputElement;
-      let bucketArray: IRouteRoutesRegion[] = values.regions;
-      const region = JSON.parse(e.target.dataset.region) as IRouteRoutesRegion;
-      const findRegion = values?.regions
-        ?.filter((filterRegion: IRouteRoutesRegion) => {
-          return filterRegion.id === region.id;
-        })
-        .pop();
-      if (findRegion) {
-        handleOpenSnackBar(`${region.place_name}은 이미 담겨있습니다.`);
-        keywordInputEl.value = '';
-        keywordInputEl.focus();
-        return;
-      }
-      bucketArray.push(region);
+  const handleSelect = (region: IRouteRoutesRegion) => {
+    const keywordInputEl = document.getElementById(
+      'standard-basic'
+    ) as HTMLInputElement;
+    let bucketArray: IRouteRoutesRegion[] = values.regions;
+
+    const findRegion = values?.regions
+      ?.filter((filterRegion: IRouteRoutesRegion) => {
+        return filterRegion.id === region.id;
+      })
+      .pop();
+    if (findRegion) {
+      handleOpenSnackBar(`${region.place_name}은 이미 담겨있습니다.`);
       keywordInputEl.value = '';
       keywordInputEl.focus();
-      handleOpenSnackBar(`${region.place_name}을 담았습니다.`);
-      setFieldValue('regions', bucketArray);
+      return;
     }
+    bucketArray.push(region);
+    keywordInputEl.value = '';
+    keywordInputEl.focus();
+    handleOpenSnackBar(`${region.place_name}을 담았습니다.`);
+    setFieldValue('regions', bucketArray);
   };
 
   const placesSearch = (data: any, status: string) => {
     if (status === kakao.maps.services.Status.OK) {
-      document.removeEventListener('click', handleClick);
       displayPlaces(data);
     }
   };
 
   const removeMarker = () => {
-    for (let i = 0; i < overlays.length; i++) {
-      overlays[i].setMap(null);
+    for (let i = 0; i < markers.length; i++) {
+      markers[i].setMap(null);
     }
-    overlays = [];
+    markers = [];
   };
 
   const addMarker = (position: string, place: IRouteRoutesRegion) => {
-    const content = renderToString(<CustomMarker region={place} />);
-    const customOverlay = new kakao.maps.CustomOverlay({
+    // const imageSrc = markerImg;
+    // const imageSize = new kakao.maps.Size(50, 60);
+    // const imageOption = { offset: new kakao.maps.Point(25, 60) };
+    //
+    // const markerImage = new kakao.maps.MarkerImage(
+    //   imageSrc,
+    //   imageSize,
+    //   imageOption
+    // );
+
+    const marker = new kakao.maps.Marker({
       position: position,
-      content: content,
+      // image: markerImage,
     });
-    customOverlay.setMap(map);
-    overlays.push(customOverlay);
-    return customOverlay;
+    marker.setMap(map);
+    markers.push(marker);
+    kakao.maps.event.addListener(marker, 'click', () => {
+      setPickRegion(place);
+    });
+    return marker;
   };
 
   const displayPlaces = (places: IRouteRoutesRegion[]) => {
@@ -124,9 +145,6 @@ function Map(formikProps: FormikProps<any>) {
       addMarker(placePosition, place);
       bounds.extend(placePosition);
     });
-    (() => {
-      document.addEventListener('click', handleClick);
-    })();
     map.setBounds(bounds);
   };
 
@@ -169,6 +187,9 @@ function Map(formikProps: FormikProps<any>) {
         }}
       />
       {openMap && <div id={'map'} className={classes.map} />}
+      {pickRegion && (
+        <CustomMarker region={pickRegion} handleSelect={handleSelect} />
+      )}
       <div className={classes.mapBottom} />
       <DndProvider backend={TouchBackend}>
         <Regions {...formikProps} />

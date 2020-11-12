@@ -25,7 +25,7 @@ const useStyles = makeStyles((theme: Theme) =>
       flexGrow: 1,
       paddingBottom: 150,
       paddingTop: 40,
-      width: 400,
+      maxWidth: 400,
       margin: 'auto',
       textAlign: 'center',
     },

@@ -51,10 +51,6 @@ const useStyles = makeStyles((theme: Theme) =>
       right: theme.spacing(2),
       zIndex: 999999,
     },
-    map: {
-      width: 350,
-      height: 350,
-    },
     submitButton: {
       backgroundColor: theme.palette.primary.main,
       color: '#fff',
