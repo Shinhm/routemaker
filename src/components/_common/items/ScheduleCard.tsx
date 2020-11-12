@@ -158,9 +158,13 @@ function ScheduleCard({ id, route, fetchRoute }: ScheduleCardProps) {
     [addMarker, kakao.maps.LatLng, kakao.maps.LatLngBounds, polyLinePlaces]
   );
 
+  const dashToBlank = (text: string) => {
+    return text.replace(new RegExp('-', 'g'), '');
+  };
+
   const handleCompare = (date: string) => {
-    const now = parseInt(format(new Date(), 'yyyy-MM-dd').replaceAll('-', ''));
-    const dateTime = parseInt(date.replaceAll('-', ''));
+    const now = parseInt(dashToBlank(format(new Date(), 'yyyy-MM-dd')));
+    const dateTime = parseInt(dashToBlank(date));
     return now >= dateTime;
   };
 

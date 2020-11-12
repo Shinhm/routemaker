@@ -19,10 +19,6 @@ import ClipboardJS from 'clipboard';
 import AddIcon from '@material-ui/icons/Add';
 import { Link } from 'react-router-dom';
 
-export interface State extends SnackbarOrigin {
-  open: boolean;
-}
-
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
     root: {
@@ -107,7 +103,7 @@ function Layout({ children, appbar }: ILayoutProps) {
               <Button
                 color="inherit"
                 className={'copy_url_btn'}
-                data-clipboard-text={`${window.location.origin}/${
+                data-clipboard-text={`${window.location.origin}${
                   window.location.pathname
                 }?sr=${EncryptService.encrypt('codeEnabled')}`}
                 onClick={() => {
