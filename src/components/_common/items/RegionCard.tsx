@@ -11,7 +11,7 @@ export interface CardProps {
   id: string;
   text: string;
   time?: string;
-  placeUrl: string;
+  placeUrl?: string;
   moveCard: (id: string, to: number) => void;
   findCard: (id: string) => { index: number };
   handleOpenDialog: () => void;
@@ -70,6 +70,7 @@ function RegionCard({
     accept: 'card',
     canDrop: () => false,
     hover({ id: draggedId }: Item) {
+      console.log(id);
       if (draggedId !== id) {
         const { index: overIndex } = findCard(id);
         moveCard(draggedId, overIndex);

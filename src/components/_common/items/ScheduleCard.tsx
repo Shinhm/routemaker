@@ -13,7 +13,7 @@ import {
   Typography,
 } from '@material-ui/core';
 import { makeStyles } from '@material-ui/core/styles';
-import { IRouteRoutes, IRouteRoutesRegion } from '../../../models/Route';
+import { IRouteRoutes, IRouteRoutesPlace } from '../../../models/Route';
 import LinkIcon from '@material-ui/icons/Link';
 import EditIcon from '@material-ui/icons/Edit';
 import { Link, useParams } from 'react-router-dom';
@@ -168,7 +168,7 @@ function ScheduleCard({ id, route, fetchRoute }: ScheduleCardProps) {
     return now >= dateTime;
   };
 
-  const handleOpenDialog = (region: IRouteRoutesRegion) => {
+  const handleOpenDialog = (region: IRouteRoutesPlace) => {
     setRegion(region);
     setOpen(true);
   };
@@ -177,7 +177,7 @@ function ScheduleCard({ id, route, fetchRoute }: ScheduleCardProps) {
     setOpen(false);
   };
 
-  const handleConfirm = async (region: IRouteRoutesRegion, amount: string) => {
+  const handleConfirm = async (region: IRouteRoutesPlace, amount: string) => {
     const result = await FirebaseService.getDoc(inviteCode);
     const { routes = [], notice = '' } = result.data() || {};
     try {

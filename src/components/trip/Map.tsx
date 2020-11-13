@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import { createStyles, Snackbar, TextField, Theme } from '@material-ui/core';
-import { IRouteRoutesRegion } from '../../models/Route';
+import { IRouteRoutesPlace } from '../../models/Route';
 import CustomMarker from '../_common/map/CustomMarker';
 import { makeStyles } from '@material-ui/core/styles';
 import { FormikProps } from 'formik';
@@ -43,6 +43,10 @@ const useStyles = makeStyles((theme: Theme) =>
   })
 );
 
+enum SEARCH_TYPE {
+  PLACES,
+}
+
 function Map(formikProps: FormikProps<any>) {
   const { setFieldValue, values } = formikProps;
   const classes = useStyles();
@@ -50,10 +54,11 @@ function Map(formikProps: FormikProps<any>) {
   const { edit }: { edit: string } = useParams();
   const [openMap, setOpenMap] = useState(edit === EDIT_ENTRY.write);
   const [message, setMessage] = useState('');
-  const [pickRegion, setPickRegion] = useState<IRouteRoutesRegion>();
+  const [pickRegion, setPickRegion] = useState<IRouteRoutesPlace>();
   const [open, setOpen] = useState(false);
   const [map, setMap] = useState<any>();
   const [markers, setMarkers] = useState<any[]>([]);
+
   const handleOpenSnackBar = (message: string) => {
     setMessage(message);
     setOpen(true);
@@ -62,40 +67,60 @@ function Map(formikProps: FormikProps<any>) {
     }, 1500);
   };
 
-  const searchPlaces = (keyword: string) => {
+  const handleSearch = (keyword: string, type: SEARCH_TYPE) => {
     document.getElementById('standard-basic')?.blur();
     setOpenMap(true);
-    const ps = new kakao.maps.services.Places();
 
     if (!keyword.replace(/^\s+|\s+$/g, '')) {
       handleOpenSnackBar('검색어를 입력해주세요.');
       return;
     }
-    setPickRegion(undefined);
-    ps.keywordSearch(keyword, placesSearch);
+
+    if (type && type === SEARCH_TYPE.PLACES) {
+      searchGeoCoder(keyword);
+    } else {
+      searchPlaces(keyword);
+    }
   };
 
-  const handleSelect = (region: IRouteRoutesRegion) => {
+  const searchPlaces = (keyword: string) => {
+    const pc = new kakao.maps.services.Places();
+
+    setPickRegion(undefined);
+    pc.keywordSearch(keyword, placesSearch);
+  };
+
+  const searchGeoCoder = (keyword: string) => {
+    const gc = new kakao.maps.services.Geocoder();
+
+    setPickRegion(undefined);
+    gc.addressSearch(keyword, placesSearch);
+  };
+
+  const handleSelect = (region: IRouteRoutesPlace) => {
     const keywordInputEl = document.getElementById(
       'standard-basic'
     ) as HTMLInputElement;
-    let bucketArray: IRouteRoutesRegion[] = values.regions;
+    let bucketArray: IRouteRoutesPlace[] = values.regions;
 
     const findRegion = values?.regions
-      ?.filter((filterRegion: IRouteRoutesRegion) => {
+      ?.filter((filterRegion: IRouteRoutesPlace) => {
         return filterRegion.id === region.id;
       })
       .pop();
+
     if (findRegion) {
       handleOpenSnackBar(`${region.place_name}은 이미 담겨있습니다.`);
       keywordInputEl.value = '';
       keywordInputEl.focus();
       return;
     }
+
     bucketArray.push(region);
+
+    handleOpenSnackBar(`${region.place_name}을 담았습니다.`);
     keywordInputEl.value = '';
     keywordInputEl.focus();
-    handleOpenSnackBar(`${region.place_name}을 담았습니다.`);
     setFieldValue('regions', bucketArray);
   };
 
@@ -106,37 +131,23 @@ function Map(formikProps: FormikProps<any>) {
   };
 
   const removeMarker = useCallback(() => {
-    console.log(markers);
     markers.forEach((marker) => {
       marker.setMap(null);
     });
     setMarkers([]);
   }, [markers]);
 
-  const addMarker = (position: string, place: IRouteRoutesRegion) => {
-    // const imageSrc = markerImg;
-    // const imageSize = new kakao.maps.Size(50, 60);
-    // const imageOption = { offset: new kakao.maps.Point(25, 60) };
-    //
-    // const markerImage = new kakao.maps.MarkerImage(
-    //   imageSrc,
-    //   imageSize,
-    //   imageOption
-    // );
-
+  const addMarker = (position: string, place: IRouteRoutesPlace) => {
     const marker = new kakao.maps.Marker({
       position: position,
-      // image: markerImage,
     });
     marker.setMap(map);
     markers.push(marker);
-    kakao.maps.event.addListener(marker, 'click', () => {
-      setPickRegion(place);
-    });
+    kakao.maps.event.addListener(marker, 'click', () => setPickRegion(place));
     return marker;
   };
 
-  const displayPlaces = (places: IRouteRoutesRegion[]) => {
+  const displayPlaces = (places: IRouteRoutesPlace[]) => {
     const bounds = new kakao.maps.LatLngBounds();
     removeMarker();
     let markerArray: any[] = [];
@@ -183,7 +194,7 @@ function Map(formikProps: FormikProps<any>) {
         onKeyPress={(e: any) => {
           const keyword = e.target.value;
           if (e.key === 'Enter') {
-            searchPlaces(keyword);
+            handleSearch(keyword, SEARCH_TYPE.PLACES);
           }
         }}
       />

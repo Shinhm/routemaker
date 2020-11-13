@@ -15,7 +15,7 @@ import {
   Theme,
 } from '@material-ui/core';
 import FirebaseService from '../../services/FirebaseService';
-import { IRoute, IRouteRoutes, IRouteRoutesRegion } from '../../models/Route';
+import { IRoute, IRouteRoutes, IRouteRoutesPlace } from '../../models/Route';
 import EncryptService from '../../services/EncryptService';
 import { Link, useLocation, useParams } from 'react-router-dom';
 import qs from 'querystring';
@@ -99,7 +99,7 @@ function Receipt() {
           .pop();
         if (getRoutesWithSearchField) setReceiptInfo(getRoutesWithSearchField);
         let routesTotalAmount: number = 0;
-        getRoutesWithSearchField?.regions.forEach((a: IRouteRoutesRegion) => {
+        getRoutesWithSearchField?.regions.forEach((a: IRouteRoutesPlace) => {
           routesTotalAmount += a.amount ? parseInt(a.amount) : 0;
         });
         setTotalAmount(routesTotalAmount);

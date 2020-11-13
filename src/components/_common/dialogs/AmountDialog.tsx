@@ -12,7 +12,7 @@ import {
   Slide,
 } from '@material-ui/core';
 import { TransitionProps } from '@material-ui/core/transitions';
-import { IRouteRoutesRegion } from '../../../models/Route';
+import { IRouteRoutesPlace } from '../../../models/Route';
 
 const Transition = React.forwardRef(function Transition(
   props: TransitionProps & { children?: React.ReactElement<any, any> },
@@ -23,8 +23,8 @@ const Transition = React.forwardRef(function Transition(
 
 interface AmountDialogProps {
   handleClose: () => void;
-  handleConfirm: (region: IRouteRoutesRegion, amount: string) => void;
-  region: IRouteRoutesRegion;
+  handleConfirm: (region: IRouteRoutesPlace, amount: string) => void;
+  region: IRouteRoutesPlace;
 }
 
 function AmountDialog({

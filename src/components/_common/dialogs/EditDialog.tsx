@@ -10,7 +10,7 @@ import {
   TextField,
 } from '@material-ui/core';
 import { TransitionProps } from '@material-ui/core/transitions';
-import { IRouteRoutesRegion } from '../../../models/Route';
+import { IRouteRoutesPlace } from '../../../models/Route';
 import { format } from 'date-fns';
 
 const Transition = React.forwardRef(function Transition(
@@ -22,8 +22,8 @@ const Transition = React.forwardRef(function Transition(
 
 interface SimpleDialogProps {
   handleCloseDialog: () => void;
-  handleConfirmDialog: (region: IRouteRoutesRegion, time: string) => void;
-  region: IRouteRoutesRegion;
+  handleConfirmDialog: (region: IRouteRoutesPlace, time: string) => void;
+  region: IRouteRoutesPlace;
 }
 
 function EditDialog({

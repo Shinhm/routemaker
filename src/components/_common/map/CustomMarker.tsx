@@ -1,6 +1,6 @@
 import Card from '@material-ui/core/Card';
 import React from 'react';
-import { IRouteRoutesRegion } from '../../../models/Route';
+import { IRouteRoutesPlace } from '../../../models/Route';
 import { CardContent, createStyles, Grid, Theme } from '@material-ui/core';
 import { makeStyles } from '@material-ui/core/styles';
 import SaveAltIcon from '@material-ui/icons/SaveAlt';
@@ -33,8 +33,8 @@ const useStyles = makeStyles((theme: Theme) =>
 );
 
 interface CustomMarkerProps {
-  region: IRouteRoutesRegion;
-  handleSelect: (region: IRouteRoutesRegion) => void;
+  region: IRouteRoutesPlace;
+  handleSelect: (region: IRouteRoutesPlace) => void;
 }
 
 function CustomMarker({ region, handleSelect }: CustomMarkerProps) {
@@ -75,16 +75,6 @@ function CustomMarker({ region, handleSelect }: CustomMarkerProps) {
           </Grid>
         </Grid>
       </CardContent>
-      {/*<CardActions>*/}
-      {/*<button*/}
-      {/*  type={'button'}*/}
-      {/*  data-region={JSON.stringify(region)}*/}
-      {/*  onClick={() => handleSelect(region)}*/}
-      {/*  className={clsx(classes.custom_marker)}*/}
-      {/*>*/}
-      {/*  담기*/}
-      {/*</button>*/}
-      {/*</CardActions>*/}
     </Card>
   );
 }

@@ -3,7 +3,7 @@ import { useDrop } from 'react-dnd';
 import update from 'immutability-helper';
 import RegionCard from '../_common/items/RegionCard';
 import { FormikProps } from 'formik';
-import { IRouteRoutesRegion } from '../../models/Route';
+import { IRouteRoutesPlace } from '../../models/Route';
 import EditDialog from '../_common/dialogs/EditDialog';
 
 function Regions({ setFieldValue, values }: FormikProps<any>) {
@@ -11,7 +11,7 @@ function Regions({ setFieldValue, values }: FormikProps<any>) {
   const [open, setOpen] = useState(false);
   const [region, setRegion] = useState(values.regions[0]);
 
-  const handleOpenDialog = (region: IRouteRoutesRegion) => {
+  const handleOpenDialog = (region: IRouteRoutesPlace) => {
     setRegion(region);
     setOpen(true);
   };
@@ -20,9 +20,9 @@ function Regions({ setFieldValue, values }: FormikProps<any>) {
     setOpen(false);
   };
 
-  const handleChangeCard = (region: IRouteRoutesRegion, time: string) => {
+  const handleChangeCard = (region: IRouteRoutesPlace, time: string) => {
     const reMakeRegions = values.regions.map(
-      (valueRegion: IRouteRoutesRegion) => {
+      (valueRegion: IRouteRoutesPlace) => {
         if (valueRegion.id === region.id) {
           return {
             ...valueRegion,
@@ -39,7 +39,7 @@ function Regions({ setFieldValue, values }: FormikProps<any>) {
   const handleRemoveRegion = (id: string) => {
     if (window.confirm(`정말 삭제하시겠습니까?`)) {
       const filterRegions = values.regions.filter(
-        (regionFilter: IRouteRoutesRegion) => {
+        (regionFilter: IRouteRoutesPlace) => {
           return regionFilter.id !== id;
         }
       );
@@ -61,7 +61,7 @@ function Regions({ setFieldValue, values }: FormikProps<any>) {
   };
 
   const findCard = (id: string) => {
-    const card = regions.filter((c: IRouteRoutesRegion) => `${c.id}` === id)[0];
+    const card = regions.filter((c: IRouteRoutesPlace) => `${c.id}` === id)[0];
     return {
       card,
       index: regions.indexOf(card),
@@ -72,10 +72,10 @@ function Regions({ setFieldValue, values }: FormikProps<any>) {
 
   return (
     <div ref={drop} style={{ width: 400 }}>
-      {regions?.map((region: IRouteRoutesRegion) => (
+      {regions?.map((region: IRouteRoutesPlace, index: number) => (
         <RegionCard
-          key={region.id}
-          id={region.id.toString()}
+          key={index}
+          id={index.toString()}
           time={region.time}
           placeUrl={region.place_url}
           text={region.place_name}
