@@ -91,7 +91,7 @@ const useStyles = makeStyles((theme: Theme) =>
     },
     tMap: {
       padding: '0 6px',
-      fontSize: 14,
+      fontSize: 10,
       color: 'red',
       border: '1px solid',
       marginLeft: 10,
