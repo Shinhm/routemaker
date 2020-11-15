@@ -28,7 +28,16 @@ function Detail() {
     } finally {
       if (query.scroll) {
         setTimeout(() => {
-          document.getElementById(query.scroll.toString())?.scrollIntoView();
+          const element = document.getElementById(query.scroll.toString());
+          if (element) {
+            const headerOffset = 55;
+            const elementPosition = element.getBoundingClientRect().top;
+            const offsetPosition = elementPosition - headerOffset;
+
+            window.scrollTo({
+              top: offsetPosition,
+            });
+          }
         }, 500);
       }
       setPending(false);

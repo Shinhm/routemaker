@@ -8,15 +8,13 @@ import {
   createStyles,
   Grid,
   IconButton,
-  Snackbar,
   Theme,
   Typography,
 } from '@material-ui/core';
 import { makeStyles } from '@material-ui/core/styles';
 import { IRouteRoutes, IRouteRoutesPlace } from '../../../models/Route';
-import LinkIcon from '@material-ui/icons/Link';
 import EditIcon from '@material-ui/icons/Edit';
-import { Link, useParams } from 'react-router-dom';
+import { useHistory, useParams } from 'react-router-dom';
 import EncryptService from '../../../services/EncryptService';
 import moment from 'moment';
 import {
@@ -35,7 +33,6 @@ import AmountDialog from '../dialogs/AmountDialog';
 import FirebaseService from '../../../services/FirebaseService';
 import { renderToString } from 'react-dom/server';
 import StarMarker from '../map/StarMarker';
-import ClipboardJS from 'clipboard';
 import ShareIcon from '@material-ui/icons/Share';
 
 const useStyles = makeStyles((theme: Theme) =>
@@ -104,10 +101,10 @@ function ScheduleCard({ id, route, fetchRoute }: ScheduleCardProps) {
   const kakao = (window as any).kakao;
   const kakaoSDK = (window as any).Kakao;
   const classes = useStyles();
+  const history = useHistory();
   const { id: inviteCode }: { id: string } = useParams();
   const { date, regions, budget } = route;
   const [open, setOpen] = useState(false);
-  const [openSnack, setOpenSnack] = useState<boolean>(false);
   const [region, setRegion] = useState(regions[0]);
 
   const addMarker = useCallback(
@@ -213,25 +210,34 @@ function ScheduleCard({ id, route, fetchRoute }: ScheduleCardProps) {
     }
   };
 
-  const loadStaticMap = (map: any) => {
-    const staticMapContainer = document.getElementById(`staticMap${date}`);
-    const bounds = new kakao.maps.LatLngBounds();
-    const markers = regions.map((region) => {
-      const latLng = new kakao.maps.LatLng(region.y, region.x);
-      bounds.extend(latLng);
-      return {
-        position: latLng,
+  const loadStaticMap = useCallback(
+    (map: any) => {
+      const staticMapContainer = document.getElementById(`staticMap${date}`);
+      const bounds = new kakao.maps.LatLngBounds();
+      const markers = regions.map((region) => {
+        const latLng = new kakao.maps.LatLng(region.y, region.x);
+        bounds.extend(latLng);
+        return {
+          position: latLng,
+        };
+      });
+      const options = {
+        center: map.getCenter(),
+        level: map.getLevel(),
+        marker: markers,
       };
-    });
-    const options = {
-      center: map.getCenter(),
-      level: map.getLevel(),
-      marker: markers,
-    };
-    new kakao.maps.StaticMap(staticMapContainer, options);
-  };
+      new kakao.maps.StaticMap(staticMapContainer, options);
+    },
+    [
+      kakao.maps.LatLngBounds,
+      kakao.maps.LatLng,
+      kakao.maps.StaticMap,
+      date,
+      regions,
+    ]
+  );
 
-  const handleCapture = () => {
+  const handleKakaoShare = () => {
     const elementById = document.querySelector(
       `#staticMap${date} img`
     ) as HTMLImageElement;
@@ -263,22 +269,17 @@ function ScheduleCard({ id, route, fetchRoute }: ScheduleCardProps) {
 
     displayPlaces(regions, map);
     loadStaticMap(map);
-  }, [date, displayPlaces, kakao.maps.LatLng, kakao.maps.Map, regions]);
-
-  useEffect(() => {
-    const clipboardUrl = new ClipboardJS('.copy_url_btn');
-    clipboardUrl.on('success', function (e) {
-      e.clearSelection();
-    });
-  }, []);
+  }, [
+    date,
+    displayPlaces,
+    kakao.maps.LatLng,
+    kakao.maps.Map,
+    regions,
+    loadStaticMap,
+  ]);
 
   return (
     <>
-      <Snackbar
-        anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
-        open={openSnack}
-        message="공유 URL이 복사되었습니다."
-      />
       <Card className={classes.root} id={date}>
         <CardHeader
           avatar={
@@ -393,22 +394,31 @@ function ScheduleCard({ id, route, fetchRoute }: ScheduleCardProps) {
             className={'copy_url_btn'}
             data-clipboard-text={`${window.location.origin}${window.location.pathname}?scroll=${date}`}
             onClick={() => {
-              handleCapture();
+              handleKakaoShare();
             }}
           >
             <ShareIcon />
           </IconButton>
-          <Link to={`/${id}/edit?q=${EncryptService.encrypt(date)}`}>
-            <IconButton aria-label="link">
-              <EditIcon />
-            </IconButton>
-          </Link>
+          <IconButton
+            aria-label="link"
+            onClick={() => {
+              history.replace(`${window.location.pathname}?scroll=${date}`);
+              history.push(`/${id}/edit?q=${EncryptService.encrypt(date)}`);
+            }}
+          >
+            <EditIcon />
+          </IconButton>
           {handleCompare(date) && (
-            <Link to={`/${id}/receipt?q=${EncryptService.encrypt(date)}`}>
-              <IconButton>
-                <ReceiptIcon />
-              </IconButton>
-            </Link>
+            <IconButton
+              onClick={() => {
+                history.replace(`${window.location.pathname}?scroll=${date}`);
+                history.push(
+                  `/${id}/receipt?q=${EncryptService.encrypt(date)}`
+                );
+              }}
+            >
+              <ReceiptIcon />
+            </IconButton>
           )}
         </CardActions>
       </Card>
