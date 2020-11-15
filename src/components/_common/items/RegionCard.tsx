@@ -15,7 +15,7 @@ export interface CardProps {
   moveCard: (id: string, to: number) => void;
   findCard: (id: string) => { index: number };
   handleOpenDialog: () => void;
-  handleRemove: (id: string) => void;
+  handleOpenRemoveDialog: (id: string) => void;
 }
 
 interface Item {
@@ -48,7 +48,7 @@ function RegionCard({
   moveCard,
   findCard,
   handleOpenDialog,
-  handleRemove,
+  handleOpenRemoveDialog,
 }: CardProps) {
   const classes = useStyles();
   const originalIndex = findCard(id).index;
@@ -106,7 +106,7 @@ function RegionCard({
             fontSize={'small'}
           />
           <DeleteForeverIcon
-            onClick={() => handleRemove(id)}
+            onClick={() => handleOpenRemoveDialog(id)}
             fontSize={'small'}
           />
         </Grid>

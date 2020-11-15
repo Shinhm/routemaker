@@ -26,23 +26,23 @@ function Detail() {
     } catch (e) {
       console.log(e);
     } finally {
+      if (query.scroll) {
+        setTimeout(() => {
+          document.getElementById(query.scroll.toString())?.scrollIntoView();
+        }, 500);
+      }
       setPending(false);
     }
-  }, [id]);
+  }, [id, query.scroll]);
 
   useEffect(() => {
     if (!id) {
       window.location.replace('/enter');
     }
-    if (query.scroll) {
-      setTimeout(() => {
-        document.getElementById(query.scroll.toString())?.scrollIntoView();
-      }, 500);
-    }
     (async () => {
       await fetchRoute();
     })();
-  }, [fetchRoute, id, query.scroll]);
+  }, [fetchRoute, id]);
 
   return (
     <>

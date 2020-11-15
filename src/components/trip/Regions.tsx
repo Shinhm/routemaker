@@ -5,11 +5,23 @@ import RegionCard from '../_common/items/RegionCard';
 import { FormikProps } from 'formik';
 import { IRouteRoutesPlace } from '../../models/Route';
 import EditDialog from '../_common/dialogs/EditDialog';
+import ConfirmDialog from '../_common/dialogs/ConfirmDialog';
 
 function Regions({ setFieldValue, values }: FormikProps<any>) {
   const { regions } = values;
   const [open, setOpen] = useState(false);
+  const [openRemoveDialog, setOpenRemoveDialog] = useState(false);
   const [region, setRegion] = useState(values.regions[0]);
+  const [removeRegionId, setRemoveRegionId] = useState<string>();
+
+  const handleOpenRemoveDialog = (id: string) => {
+    setRemoveRegionId(id);
+    setOpenRemoveDialog(true);
+  };
+
+  const handleCloseRemoveDialog = () => {
+    setOpenRemoveDialog(false);
+  };
 
   const handleOpenDialog = (region: IRouteRoutesPlace) => {
     setRegion(region);
@@ -36,15 +48,18 @@ function Regions({ setFieldValue, values }: FormikProps<any>) {
     handleCloseDialog();
   };
 
-  const handleRemoveRegion = (id: string) => {
-    if (window.confirm(`정말 삭제하시겠습니까?`)) {
-      const filterRegions = values.regions.filter(
-        (regionFilter: IRouteRoutesPlace) => {
-          return regionFilter.id !== id;
-        }
-      );
-      setFieldValue('regions', filterRegions);
+  const handleRemoveRegion = () => {
+    if (!removeRegionId) {
+      return alert('삭제할 대상이 없습니다.');
     }
+    const filterRegions = values.regions.filter(
+      (regionFilter: IRouteRoutesPlace) => {
+        console.log(removeRegionId, regionFilter.id);
+        return regionFilter.id !== removeRegionId;
+      }
+    );
+    setFieldValue('regions', filterRegions);
+    handleCloseRemoveDialog();
   };
 
   const moveCard = (id: string, atIndex: number) => {
@@ -82,7 +97,7 @@ function Regions({ setFieldValue, values }: FormikProps<any>) {
           moveCard={moveCard}
           findCard={findCard}
           handleOpenDialog={() => handleOpenDialog(region)}
-          handleRemove={handleRemoveRegion}
+          handleOpenRemoveDialog={handleOpenRemoveDialog}
         />
       ))}
       {open && (
@@ -90,6 +105,12 @@ function Regions({ setFieldValue, values }: FormikProps<any>) {
           region={region}
           handleCloseDialog={handleCloseDialog}
           handleConfirmDialog={handleChangeCard}
+        />
+      )}
+      {openRemoveDialog && (
+        <ConfirmDialog
+          handleClose={handleCloseRemoveDialog}
+          handleConfirm={handleRemoveRegion}
         />
       )}
     </div>

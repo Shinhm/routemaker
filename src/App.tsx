@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import './styles/App.css';
 import RouterProvider from './pages/router';
 import { createMuiTheme } from '@material-ui/core/styles';
@@ -27,6 +27,18 @@ const theme = createMuiTheme({
 });
 
 function App() {
+  useEffect(() => {
+    const script = document.createElement('script');
+
+    script.src = 'https://developers.kakao.com/sdk/js/kakao.min.js';
+    script.async = true;
+    script.onload = () => {
+      (window as any).Kakao.init('a848dd4558f2f5285f1fa2cadd40bca6');
+    };
+
+    document.head.appendChild(script);
+  }, []);
+
   return (
     <ThemeProvider theme={theme}>
       <RouterProvider />

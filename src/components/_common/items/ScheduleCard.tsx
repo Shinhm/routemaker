@@ -36,6 +36,7 @@ import FirebaseService from '../../../services/FirebaseService';
 import { renderToString } from 'react-dom/server';
 import StarMarker from '../map/StarMarker';
 import ClipboardJS from 'clipboard';
+import ShareIcon from '@material-ui/icons/Share';
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -101,6 +102,7 @@ interface ScheduleCardProps {
 
 function ScheduleCard({ id, route, fetchRoute }: ScheduleCardProps) {
   const kakao = (window as any).kakao;
+  const kakaoSDK = (window as any).Kakao;
   const classes = useStyles();
   const { id: inviteCode }: { id: string } = useParams();
   const { date, regions, budget } = route;
@@ -211,6 +213,45 @@ function ScheduleCard({ id, route, fetchRoute }: ScheduleCardProps) {
     }
   };
 
+  const loadStaticMap = (map: any) => {
+    const staticMapContainer = document.getElementById(`staticMap${date}`);
+    const bounds = new kakao.maps.LatLngBounds();
+    const markers = regions.map((region) => {
+      const latLng = new kakao.maps.LatLng(region.y, region.x);
+      bounds.extend(latLng);
+      return {
+        position: latLng,
+      };
+    });
+    const options = {
+      center: map.getCenter(),
+      level: map.getLevel(),
+      marker: markers,
+    };
+    new kakao.maps.StaticMap(staticMapContainer, options);
+  };
+
+  const handleCapture = () => {
+    const elementById = document.querySelector(
+      `#staticMap${date} img`
+    ) as HTMLImageElement;
+    if (elementById) {
+      const message = `${regions[0].place_name}에서 시작해서\n${
+        regions[regions.length - 1].place_name
+      }까지 일정입니다.`;
+      kakaoSDK.Link.sendCustom({
+        templateId: 40757,
+        templateArgs: {
+          id: inviteCode,
+          title: `${date} 일정`,
+          message: message,
+          image: elementById.src,
+          anchor: date,
+        },
+      });
+    }
+  };
+
   useEffect(() => {
     const container = document.getElementById(`map${date}`);
     const options = {
@@ -221,6 +262,7 @@ function ScheduleCard({ id, route, fetchRoute }: ScheduleCardProps) {
     const map = new kakao.maps.Map(container, options);
 
     displayPlaces(regions, map);
+    loadStaticMap(map);
   }, [date, displayPlaces, kakao.maps.LatLng, kakao.maps.Map, regions]);
 
   useEffect(() => {
@@ -248,6 +290,16 @@ function ScheduleCard({ id, route, fetchRoute }: ScheduleCardProps) {
           subheader={
             budget ? `예산: ${parseInt(budget).toLocaleString()}원` : ''
           }
+        />
+        <div
+          id={`staticMap${date}`}
+          style={{
+            width: 400,
+            height: 400,
+            position: 'absolute',
+            top: -500,
+            left: 0,
+          }}
         />
         <div id={`map${date}`} className={classes.media} />
         <CardContent className={classes.cardContent}>
@@ -341,13 +393,10 @@ function ScheduleCard({ id, route, fetchRoute }: ScheduleCardProps) {
             className={'copy_url_btn'}
             data-clipboard-text={`${window.location.origin}${window.location.pathname}?scroll=${date}`}
             onClick={() => {
-              setOpenSnack(true);
-              setTimeout(() => {
-                setOpenSnack(false);
-              }, 1000);
+              handleCapture();
             }}
           >
-            <LinkIcon />
+            <ShareIcon />
           </IconButton>
           <Link to={`/${id}/edit?q=${EncryptService.encrypt(date)}`}>
             <IconButton aria-label="link">
