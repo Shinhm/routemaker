@@ -1,6 +1,7 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import {
   Avatar,
+  Button,
   Card,
   CardActions,
   CardContent,
@@ -87,6 +88,13 @@ const useStyles = makeStyles((theme: Theme) =>
     notice: {
       textAlign: 'center',
       fontSize: 11,
+    },
+    tMap: {
+      padding: '0 6px',
+      fontSize: 14,
+      color: 'red',
+      border: '1px solid',
+      marginLeft: 10,
     },
   })
 );
@@ -341,6 +349,14 @@ function ScheduleCard({ id, route, fetchRoute }: ScheduleCardProps) {
                                 [{region.category_group_name}]
                               </span>
                             )}
+                            <a
+                              href={`tmap://search?name=${region.place_name}`}
+                              target={'_blank'}
+                              rel="noreferrer"
+                              className={classes.tMap}
+                            >
+                              T map
+                            </a>
                             <br />
                             {region?.time && (
                               <span className={classes.groupName}>
