@@ -4,6 +4,7 @@ import RouterProvider from './pages/router';
 import { createMuiTheme } from '@material-ui/core/styles';
 import { ThemeProvider } from '@material-ui/styles';
 import { withRouter } from 'react-router-dom';
+import UserAgentService from './services/UserAgentService';
 
 const theme = createMuiTheme({
   palette: {
@@ -28,6 +29,7 @@ const theme = createMuiTheme({
 
 function App() {
   useEffect(() => {
+    UserAgentService.setUserAgent(navigator.userAgent);
     const script = document.createElement('script');
 
     script.src = 'https://developers.kakao.com/sdk/js/kakao.min.js';

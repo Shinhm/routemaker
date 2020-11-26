@@ -1,33 +1,23 @@
 import React from 'react';
-import { useDrag, useDrop } from 'react-dnd';
 import { createStyles, Grid, Paper, Theme } from '@material-ui/core';
-import SwapVertIcon from '@material-ui/icons/SwapVert';
 import AddAlarmIcon from '@material-ui/icons/AddAlarm';
 import { makeStyles } from '@material-ui/core/styles';
 import DeleteForeverIcon from '@material-ui/icons/DeleteForever';
-import clsx from 'clsx';
 
 export interface CardProps {
   id: string;
   text: string;
   time?: string;
   placeUrl?: string;
-  moveCard: (id: string, to: number) => void;
-  findCard: (id: string) => { index: number };
   handleOpenDialog: () => void;
   handleOpenRemoveDialog: (id: string) => void;
-}
-
-interface Item {
-  type: string;
-  id: string;
-  originalIndex: string;
 }
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
     root: {
-      marginTop: 30,
+      marginTop: 20,
+      padding: '15px 5px',
     },
     paper: {
       padding: theme.spacing(2),
@@ -45,53 +35,15 @@ function RegionCard({
   text,
   time,
   placeUrl,
-  moveCard,
-  findCard,
   handleOpenDialog,
   handleOpenRemoveDialog,
 }: CardProps) {
   const classes = useStyles();
-  const originalIndex = findCard(id).index;
-  const [{ isDragging }, drag] = useDrag({
-    item: { type: 'card', id, originalIndex },
-    collect: (monitor) => ({
-      isDragging: monitor.isDragging(),
-    }),
-    end: (dropResult, monitor) => {
-      const { id: droppedId, originalIndex } = monitor.getItem();
-      const didDrop = monitor.didDrop();
-      if (!didDrop) {
-        moveCard(droppedId, originalIndex);
-      }
-    },
-  });
-
-  const [, drop] = useDrop({
-    accept: 'card',
-    canDrop: () => false,
-    hover({ id: draggedId }: Item) {
-      console.log(id);
-      if (draggedId !== id) {
-        const { index: overIndex } = findCard(id);
-        moveCard(draggedId, overIndex);
-      }
-    },
-  });
 
   return (
-    <Paper
-      className={clsx(classes.root, {
-        [classes.isDragging]: isDragging,
-      })}
-      elevation={isDragging ? 4 : 1}
-    >
-      <Grid container spacing={3}>
-        <Grid item xs={2}>
-          <span ref={(node) => drag(drop(node))}>
-            <SwapVertIcon fontSize={'small'} />
-          </span>
-        </Grid>
-        <Grid item xs={7}>
+    <Paper className={classes.root} elevation={4}>
+      <Grid container justify="space-around" alignItems="center">
+        <Grid item xs={9}>
           <div>
             <a href={placeUrl} target={'_blank'} rel="noreferrer">
               {text}

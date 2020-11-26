@@ -1,6 +1,4 @@
 import React, { useState } from 'react';
-import { useDrop } from 'react-dnd';
-import update from 'immutability-helper';
 import RegionCard from '../_common/items/RegionCard';
 import { FormikProps } from 'formik';
 import { IRouteRoutesPlace } from '../../models/Route';
@@ -33,8 +31,8 @@ function Regions({ setFieldValue, values }: FormikProps<any>) {
   };
 
   const handleChangeCard = (region: IRouteRoutesPlace, time: string) => {
-    const reMakeRegions = values.regions.map(
-      (valueRegion: IRouteRoutesPlace) => {
+    const reMakeRegions = values.regions
+      .map((valueRegion: IRouteRoutesPlace) => {
         if (valueRegion.id === region.id) {
           return {
             ...valueRegion,
@@ -42,8 +40,16 @@ function Regions({ setFieldValue, values }: FormikProps<any>) {
           };
         }
         return valueRegion;
-      }
-    );
+      })
+      .sort((a: IRouteRoutesPlace, b: IRouteRoutesPlace) => {
+        console.log(a.time, b.time);
+        if (a.time && b.time) {
+          return (
+            parseInt(a.time.replace(':', '')) -
+            parseInt(b.time.replace(':', ''))
+          );
+        }
+      });
     setFieldValue('regions', reMakeRegions);
     handleCloseDialog();
   };
@@ -62,31 +68,8 @@ function Regions({ setFieldValue, values }: FormikProps<any>) {
     handleCloseRemoveDialog();
   };
 
-  const moveCard = (id: string, atIndex: number) => {
-    const { card, index } = findCard(id);
-    setFieldValue(
-      'regions',
-      update(regions, {
-        $splice: [
-          [index, 1],
-          [atIndex, 0, card],
-        ],
-      })
-    );
-  };
-
-  const findCard = (id: string) => {
-    const card = regions.filter((c: IRouteRoutesPlace) => `${c.id}` === id)[0];
-    return {
-      card,
-      index: regions.indexOf(card),
-    };
-  };
-
-  const [, drop] = useDrop({ accept: 'card' });
-
   return (
-    <div ref={drop} style={{ width: 400 }}>
+    <div style={{ width: 400 }}>
       {regions?.map((region: IRouteRoutesPlace, index: number) => (
         <RegionCard
           key={index}
@@ -94,8 +77,6 @@ function Regions({ setFieldValue, values }: FormikProps<any>) {
           time={region.time}
           placeUrl={region.place_url}
           text={region.place_name}
-          moveCard={moveCard}
-          findCard={findCard}
           handleOpenDialog={() => handleOpenDialog(region)}
           handleOpenRemoveDialog={handleOpenRemoveDialog}
         />

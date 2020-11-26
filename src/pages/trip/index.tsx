@@ -7,12 +7,16 @@ import ScheduleCard from '../../components/_common/items/ScheduleCard';
 import Empty from '../../components/_common/layout/Empty';
 import { LinearProgress } from '@material-ui/core';
 import qs from 'querystring';
+import { Swiper, SwiperSlide } from 'swiper/react';
+import SwiperCore, { Navigation, Pagination, Scrollbar, A11y } from 'swiper';
+
+SwiperCore.use([Navigation, Pagination, Scrollbar, A11y]);
 
 function useQuery() {
   return qs.parse(useLocation().search.replace('?', ''));
 }
 
-function Detail() {
+function Index() {
   const { id }: { id: string } = useParams();
   const query = useQuery();
   const [routes, setRoutes] = useState<IRouteRoutes[]>([]);
@@ -68,13 +72,22 @@ function Detail() {
         ) : (
           <>
             {routes.length === 0 && <Empty />}
-            {routes?.map((route) => {
-              return (
-                <React.Fragment key={route.date}>
-                  <ScheduleCard route={route} id={id} fetchRoute={fetchRoute} />
-                </React.Fragment>
-              );
-            })}
+            <Swiper
+              spaceBetween={10}
+              style={{ marginTop: 10, padding: '0 15px' }}
+            >
+              {routes?.map((route) => {
+                return (
+                  <SwiperSlide key={route.date}>
+                    <ScheduleCard
+                      route={route}
+                      id={id}
+                      fetchRoute={fetchRoute}
+                    />
+                  </SwiperSlide>
+                );
+              })}
+            </Swiper>
           </>
         )}
       </Layout>
@@ -82,4 +95,4 @@ function Detail() {
   );
 }
 
-export default Detail;
+export default Index;

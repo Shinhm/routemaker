@@ -162,7 +162,7 @@ function Receipt() {
                   justify="space-around"
                   alignItems="center"
                 >
-                  <Grid item xs={6}>
+                  <Grid item xs={receiptInfo.budget ? 6 : 12}>
                     <ButtonGroup
                       className={classes.buttonGroup}
                       size="small"
@@ -197,6 +197,7 @@ function Receipt() {
               <Grid item xs={12}>
                 <List dense={true}>
                   {receiptInfo.regions.map((region) => {
+                    if (!region.amount) return false;
                     return (
                       <ListItem>
                         <ListItemText

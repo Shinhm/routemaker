@@ -1,7 +1,6 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import {
   Avatar,
-  Button,
   Card,
   CardActions,
   CardContent,
@@ -9,6 +8,7 @@ import {
   createStyles,
   Grid,
   IconButton,
+  Paper,
   Theme,
   Typography,
 } from '@material-ui/core';
@@ -35,13 +35,13 @@ import FirebaseService from '../../../services/FirebaseService';
 import { renderToString } from 'react-dom/server';
 import StarMarker from '../map/StarMarker';
 import ShareIcon from '@material-ui/icons/Share';
+import UserAgentService from '../../../services/UserAgentService';
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
     root: {
-      maxWidth: 340,
-      margin: '30px auto',
       textAlign: 'left',
+      marginTop: 5,
     },
     cardContent: {
       padding: '14px 0 0',
@@ -94,7 +94,6 @@ const useStyles = makeStyles((theme: Theme) =>
       fontSize: 10,
       color: 'red',
       border: '1px solid',
-      marginLeft: 10,
     },
   })
 );
@@ -288,156 +287,167 @@ function ScheduleCard({ id, route, fetchRoute }: ScheduleCardProps) {
 
   return (
     <>
-      <Card className={classes.root} id={date}>
-        <CardHeader
-          avatar={
-            <Avatar aria-label="recipe" className={classes.avatar}>
-              U
-            </Avatar>
-          }
-          title={`${moment(date).format('yyyy년 MM월 DD일')}`}
-          subheader={
-            budget ? `예산: ${parseInt(budget).toLocaleString()}원` : ''
-          }
-        />
-        <div
-          id={`staticMap${date}`}
-          style={{
-            width: 400,
-            height: 400,
-            position: 'absolute',
-            top: -500,
-            left: 0,
-          }}
-        />
-        <div id={`map${date}`} className={classes.media} />
-        <CardContent className={classes.cardContent}>
-          <Typography variant="body2" color="textSecondary" component="p">
-            <Timeline className={classes.timeLine}>
-              {regions.map((region, index) => {
-                return (
-                  <React.Fragment key={`region${index}`}>
-                    <TimelineItem className={classes.timeLineItem}>
-                      <TimelineSeparator>
-                        <TimelineDot
-                          variant="outlined"
-                          style={{
-                            borderColor:
-                              (index === 0 && 'green') ||
-                              (index === regions.length - 1 && 'red') ||
-                              '#1D04BF',
-                          }}
-                        />
-                        {regions.length !== index + 1 && (
-                          <TimelineConnector
-                            className={classes.timeLineConnector}
+      <Paper elevation={3}>
+        <Card className={classes.root} id={date}>
+          <CardHeader
+            avatar={
+              <Avatar aria-label="recipe" className={classes.avatar}>
+                U
+              </Avatar>
+            }
+            title={`${moment(date).format('yyyy년 MM월 DD일')}`}
+            subheader={
+              budget ? `예산: ${parseInt(budget).toLocaleString()}원` : ''
+            }
+          />
+          <div
+            id={`staticMap${date}`}
+            style={{
+              width: 400,
+              height: 400,
+              position: 'absolute',
+              top: -500,
+              left: 0,
+            }}
+          />
+          <div id={`map${date}`} className={classes.media} />
+          <CardContent className={classes.cardContent}>
+            <Typography variant="body2" color="textSecondary" component="p">
+              <Timeline className={classes.timeLine}>
+                {regions.map((region, index) => {
+                  return (
+                    <React.Fragment key={`region${index}`}>
+                      <TimelineItem className={classes.timeLineItem}>
+                        <TimelineSeparator>
+                          <TimelineDot
+                            variant="outlined"
+                            style={{
+                              borderColor:
+                                (index === 0 && 'green') ||
+                                (index === regions.length - 1 && 'red') ||
+                                '#1D04BF',
+                            }}
                           />
-                        )}
-                      </TimelineSeparator>
-                      <TimelineContent>
-                        <Grid container>
-                          <Grid item xs={11}>
-                            <a
-                              href={region.place_url}
-                              target={'_blank'}
-                              rel="noreferrer"
-                            >
-                              {region.place_name}{' '}
-                            </a>
-                            {region.category_group_name && (
-                              <span className={classes.groupName}>
-                                [{region.category_group_name}]
-                              </span>
-                            )}
-                            <a
-                              href={`tmap://search?name=${region.place_name}`}
-                              target={'_blank'}
-                              rel="noreferrer"
-                              className={classes.tMap}
-                            >
-                              T map
-                            </a>
-                            <br />
-                            {region?.time && (
-                              <span className={classes.groupName}>
-                                {region.time}에 방문예정
-                              </span>
-                            )}
-                            {region?.time && region?.amount && (
-                              <span className={classes.groupName}>{' | '}</span>
-                            )}
-                            {region?.amount && (
-                              <span
-                                className={classes.amount}
-                              >{`사용금액: ${parseInt(
-                                region.amount
-                              ).toLocaleString()}원`}</span>
-                            )}
-                          </Grid>
-                          <Grid item xs={1}>
-                            {Enum.possibleCategory(
-                              region.category_group_code
-                            ) &&
-                              (region.category_group_code ===
-                                REGION_CATEGORY.AD5 ||
-                                handleCompare(date)) && (
-                                <PostAddIcon
-                                  fontSize={'small'}
-                                  onClick={() => handleOpenDialog(region)}
-                                />
+                          {regions.length !== index + 1 && (
+                            <TimelineConnector
+                              className={classes.timeLineConnector}
+                            />
+                          )}
+                        </TimelineSeparator>
+                        <TimelineContent>
+                          <Grid container>
+                            <Grid item xs={11}>
+                              <a
+                                href={region.place_url}
+                                target={'_blank'}
+                                rel="noreferrer"
+                              >
+                                {region.place_name}{' '}
+                              </a>
+                              {region.category_group_name && (
+                                <span className={classes.groupName}>
+                                  [{region.category_group_name}]
+                                </span>
                               )}
+                              <br />
+                              {region?.time && (
+                                <span className={classes.groupName}>
+                                  {region.time}에 방문예정
+                                </span>
+                              )}
+                              {region?.time && region?.amount && (
+                                <span className={classes.groupName}>
+                                  {' | '}
+                                </span>
+                              )}
+                              {region?.amount && (
+                                <span
+                                  className={classes.amount}
+                                >{`사용금액: ${parseInt(
+                                  region.amount
+                                ).toLocaleString()}원`}</span>
+                              )}
+                              <br />
+                              {UserAgentService.isMobile() && (
+                                <a
+                                  href={`tmap://search?name=${region.place_name}`}
+                                  target={'_blank'}
+                                  rel="noreferrer"
+                                  className={classes.tMap}
+                                >
+                                  T map
+                                </a>
+                              )}
+                            </Grid>
+                            <Grid item xs={1}>
+                              {Enum.possibleCategory(
+                                region.category_group_code
+                              ) &&
+                                (region.category_group_code ===
+                                  REGION_CATEGORY.AD5 ||
+                                  handleCompare(date)) && (
+                                  <PostAddIcon
+                                    fontSize={'small'}
+                                    onClick={() => handleOpenDialog(region)}
+                                  />
+                                )}
+                            </Grid>
                           </Grid>
-                        </Grid>
-                      </TimelineContent>
-                    </TimelineItem>
-                  </React.Fragment>
-                );
-              })}
-            </Timeline>
-          </Typography>
-          <p className={classes.notice}>
-            * [숙박] 카테고리를 제외한 모든 카테고리들은
-            <br />
-            계획한 날짜가 되면 금액작성 버튼이 생성됩니다.
-          </p>
-          <p className={classes.notice}>
-            * 영수증은 루트에 설정된 날짜가 되면 볼 수 있습니다.
-          </p>
-        </CardContent>
-        <CardActions disableSpacing>
-          <IconButton
-            aria-label="link"
-            className={'copy_url_btn'}
-            data-clipboard-text={`${window.location.origin}${window.location.pathname}?scroll=${date}`}
-            onClick={() => {
-              handleKakaoShare();
-            }}
-          >
-            <ShareIcon />
-          </IconButton>
-          <IconButton
-            aria-label="link"
-            onClick={() => {
-              history.replace(`${window.location.pathname}?scroll=${date}`);
-              history.push(`/${id}/edit?q=${EncryptService.encrypt(date)}`);
-            }}
-          >
-            <EditIcon />
-          </IconButton>
-          {handleCompare(date) && (
+                        </TimelineContent>
+                      </TimelineItem>
+                    </React.Fragment>
+                  );
+                })}
+              </Timeline>
+            </Typography>
+            {!handleCompare(date) && (
+              <>
+                <p className={classes.notice}>
+                  * [숙박] 카테고리를 제외한 모든 카테고리들은
+                  <br />
+                  계획한 날짜가 되면 금액작성 버튼이 생성됩니다.
+                </p>
+                <p className={classes.notice}>
+                  * 영수증은 루트에 설정된 날짜가 되면 볼 수 있습니다.
+                </p>
+              </>
+            )}
+          </CardContent>
+          <CardActions disableSpacing>
             <IconButton
+              aria-label="link"
+              className={'copy_url_btn'}
+              data-clipboard-text={`${window.location.origin}${window.location.pathname}?scroll=${date}`}
               onClick={() => {
-                history.replace(`${window.location.pathname}?scroll=${date}`);
-                history.push(
-                  `/${id}/receipt?q=${EncryptService.encrypt(date)}`
-                );
+                handleKakaoShare();
               }}
             >
-              <ReceiptIcon />
+              <ShareIcon />
             </IconButton>
-          )}
-        </CardActions>
-      </Card>
+            <IconButton
+              aria-label="link"
+              onClick={() => {
+                history.replace(`${window.location.pathname}?scroll=${date}`);
+                history.push(`/${id}/edit?q=${EncryptService.encrypt(date)}`);
+              }}
+            >
+              <EditIcon />
+            </IconButton>
+            {handleCompare(date) && (
+              <IconButton
+                onClick={() => {
+                  history.replace(`${window.location.pathname}?scroll=${date}`);
+                  history.push(
+                    `/${id}/receipt?q=${EncryptService.encrypt(date)}`
+                  );
+                }}
+              >
+                <ReceiptIcon />
+              </IconButton>
+            )}
+          </CardActions>
+        </Card>
+      </Paper>
       {open && (
         <AmountDialog
           handleClose={handleCloseDialog}
