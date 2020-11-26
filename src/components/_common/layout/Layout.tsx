@@ -14,14 +14,21 @@ import {
 import { makeStyles } from '@material-ui/core/styles';
 import LinkIcon from '@material-ui/icons/Link';
 import NavigateBeforeIcon from '@material-ui/icons/NavigateBefore';
-import EncryptService from '../../../services/EncryptService';
 import ClipboardJS from 'clipboard';
 import AddIcon from '@material-ui/icons/Add';
-import { Link } from 'react-router-dom';
+import { Link, useHistory } from 'react-router-dom';
+import UserAgentService from '../../../services/UserAgentService';
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
     root: {
+      flexGrow: 1,
+      paddingTop: 40,
+      maxWidth: 700,
+      margin: 'auto',
+      textAlign: 'center',
+    },
+    rootMobile: {
       flexGrow: 1,
       paddingBottom: 150,
       paddingTop: 40,
@@ -30,6 +37,11 @@ const useStyles = makeStyles((theme: Theme) =>
       textAlign: 'center',
     },
     appBar: {
+      width: 700,
+      left: '50%',
+      marginLeft: -350,
+    },
+    appBarMobile: {
       width: 400,
       left: '50%',
       marginLeft: -200,
@@ -55,25 +67,23 @@ interface IAppBarProps {
   title: string;
   id: string;
   enabledPrevButton?: boolean;
-  enabledMenuButton?: boolean;
   enabledAddButton?: boolean;
 }
 
 interface ILayoutProps {
   children: React.ReactNode;
-  appbar: IAppBarProps;
+  appBar: IAppBarProps;
 }
 
-function Layout({ children, appbar }: ILayoutProps) {
+function Layout({ children, appBar }: ILayoutProps) {
   const classes = useStyles();
+  const history = useHistory();
   const {
     title,
     id,
     enabledPrevButton = false,
-    enabledMenuButton = false,
     enabledAddButton = false,
-  } = appbar;
-  const [open, setOpen] = useState<boolean>(false);
+  } = appBar;
 
   useEffect(() => {
     const clipboardUrl = new ClipboardJS('.copy_url_btn');
@@ -83,8 +93,17 @@ function Layout({ children, appbar }: ILayoutProps) {
   }, []);
 
   return (
-    <div className={classes.root}>
-      <AppBar position="fixed" className={classes.appBar}>
+    <div
+      className={
+        UserAgentService.isMobile() ? classes.rootMobile : classes.root
+      }
+    >
+      <AppBar
+        position="fixed"
+        className={
+          UserAgentService.isMobile() ? classes.appBarMobile : classes.appBar
+        }
+      >
         <Toolbar variant="dense">
           <Grid
             container
@@ -94,46 +113,23 @@ function Layout({ children, appbar }: ILayoutProps) {
           >
             <Grid item xs={1}>
               {enabledPrevButton && (
-                <Link to={`/${id}/trip`}>
-                  <IconButton
-                    edge="start"
-                    className={classes.menuButton}
-                    color="inherit"
-                    aria-label="menu"
-                  >
-                    <NavigateBeforeIcon />
-                  </IconButton>
-                </Link>
+                <IconButton
+                  onClick={() => {
+                    history.goBack();
+                  }}
+                  edge="start"
+                  className={classes.menuButton}
+                  color="inherit"
+                  aria-label="menu"
+                >
+                  <NavigateBeforeIcon />
+                </IconButton>
               )}
             </Grid>
-            <Grid item xs={9}>
+            <Grid item xs={11}>
               <Typography variant="h6" className={classes.title}>
                 {title}
               </Typography>
-            </Grid>
-            <Grid item xs={2}>
-              {enabledMenuButton && (
-                <>
-                  <Button
-                    color="inherit"
-                    className={'copy_url_btn'}
-                    data-clipboard-text={`${window.location.origin}${window.location.pathname}`}
-                    onClick={() => {
-                      setOpen(true);
-                      setTimeout(() => {
-                        setOpen(false);
-                      }, 1000);
-                    }}
-                  >
-                    <LinkIcon />
-                  </Button>
-                  <Snackbar
-                    anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
-                    open={open}
-                    message="공유 URL이 복사되었습니다."
-                  />
-                </>
-              )}
             </Grid>
           </Grid>
         </Toolbar>

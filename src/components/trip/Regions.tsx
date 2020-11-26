@@ -69,7 +69,7 @@ function Regions({ setFieldValue, values }: FormikProps<any>) {
   };
 
   return (
-    <div style={{ width: 400 }}>
+    <div style={{ width: '100%' }}>
       {regions?.map((region: IRouteRoutesPlace, index: number) => (
         <RegionCard
           key={index}

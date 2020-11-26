@@ -4,9 +4,7 @@ import { IRouteRoutesPlace } from '../../models/Route';
 import CustomMarker from '../_common/map/CustomMarker';
 import { makeStyles } from '@material-ui/core/styles';
 import { FormikProps } from 'formik';
-import { TouchBackend } from 'react-dnd-touch-backend';
 import Regions from './Regions';
-import { DndProvider } from 'react-dnd';
 import { useParams } from 'react-router-dom';
 import { EDIT_ENTRY } from '../../pages/trip/edit';
 
@@ -203,9 +201,7 @@ function Map(formikProps: FormikProps<any>) {
         <CustomMarker region={pickRegion} handleSelect={handleSelect} />
       )}
       <div className={classes.mapBottom} />
-      <DndProvider backend={TouchBackend}>
-        <Regions {...formikProps} />
-      </DndProvider>
+      <Regions {...formikProps} />
     </>
   );
 }

@@ -134,7 +134,7 @@ function Receipt() {
   }, [fetchRoute, query.q]);
 
   return (
-    <Layout appbar={{ title: '영수증', id: id, enabledPrevButton: true }}>
+    <Layout appBar={{ title: '영수증', id: id, enabledPrevButton: true }}>
       {pending && <LinearProgress />}
       {!pending && receiptInfo && (
         <>

@@ -4,6 +4,7 @@ import { useLocation, useParams } from 'react-router-dom';
 import { IRoute, IRouteRoutes } from '../../models/Route';
 import Layout from '../../components/_common/layout/Layout';
 import ScheduleCard from '../../components/_common/items/ScheduleCard';
+import SwiperClass from 'swiper/types/swiper-class';
 import Empty from '../../components/_common/layout/Empty';
 import { LinearProgress } from '@material-ui/core';
 import qs from 'querystring';
@@ -21,6 +22,7 @@ function Index() {
   const query = useQuery();
   const [routes, setRoutes] = useState<IRouteRoutes[]>([]);
   const [pending, setPending] = useState(true);
+  const [controlledSwiper, setControlledSwiper] = useState<SwiperClass>();
 
   const fetchRoute = useCallback(async () => {
     try {
@@ -30,23 +32,9 @@ function Index() {
     } catch (e) {
       console.log(e);
     } finally {
-      if (query.scroll) {
-        setTimeout(() => {
-          const element = document.getElementById(query.scroll.toString());
-          if (element) {
-            const headerOffset = 55;
-            const elementPosition = element.getBoundingClientRect().top;
-            const offsetPosition = elementPosition - headerOffset;
-
-            window.scrollTo({
-              top: offsetPosition,
-            });
-          }
-        }, 500);
-      }
       setPending(false);
     }
-  }, [id, query.scroll]);
+  }, [id]);
 
   useEffect(() => {
     if (!id) {
@@ -57,13 +45,21 @@ function Index() {
     })();
   }, [fetchRoute, id]);
 
+  useEffect(() => {
+    if (query.scroll) {
+      const activeIndex = routes?.findIndex(
+        (tag) => tag.date === query.scroll.toString()
+      );
+      controlledSwiper?.slideTo(activeIndex);
+    }
+  }, [routes, controlledSwiper, query.scroll]);
+
   return (
     <>
       <Layout
-        appbar={{
+        appBar={{
           title: 'Schedule',
           id: id,
-          enabledMenuButton: true,
           enabledAddButton: true,
         }}
       >
@@ -73,6 +69,7 @@ function Index() {
           <>
             {routes.length === 0 && <Empty />}
             <Swiper
+              onSwiper={setControlledSwiper}
               spaceBetween={10}
               style={{ marginTop: 10, padding: '0 15px' }}
             >

@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import FirebaseService from '../../services/FirebaseService';
-import { useLocation, useParams } from 'react-router-dom';
+import { useHistory, useLocation, useParams } from 'react-router-dom';
 import { IRoute, IRouteRoutes } from '../../models/Route';
 import qs from 'querystring';
 import EncryptService from '../../services/EncryptService';
@@ -22,6 +22,7 @@ import { makeStyles } from '@material-ui/core/styles';
 import { format } from 'date-fns';
 import { Form, Formik, FormikProps } from 'formik';
 import Map from '../../components/trip/Map';
+import UserAgentService from '../../services/UserAgentService';
 
 export enum EDIT_ENTRY {
   write = 'write',
@@ -56,6 +57,20 @@ const useStyles = makeStyles((theme: Theme) =>
       color: '#fff',
       height: 50,
       fontSize: 17,
+      width: 700,
+      fontWeight: 500,
+      position: 'fixed',
+      marginLeft: '-350px',
+      bottom: 0,
+      left: '50%',
+      borderBottomLeftRadius: 0,
+      borderBottomRightRadius: 0,
+    },
+    submitButtonMobile: {
+      backgroundColor: theme.palette.primary.main,
+      color: '#fff',
+      height: 50,
+      fontSize: 17,
       width: 400,
       fontWeight: 500,
       position: 'fixed',
@@ -72,6 +87,7 @@ function Edit() {
   const classes = useStyles();
   const { id, edit }: { id: string; edit: string } = useParams();
   const query = useQuery();
+  const history = useHistory();
   const [pending, setPending] = useState(true);
   const [form, setForm] = useState<IRouteRoutes>({
     date: '',
@@ -125,8 +141,7 @@ function Edit() {
           id
         );
       }
-
-      window.location.replace(`/${id}/trip`);
+      history.goBack();
     } catch (e) {
       console.log(e);
     }
@@ -168,7 +183,7 @@ function Edit() {
 
   return (
     <Layout
-      appbar={{
+      appBar={{
         title: edit === EDIT_ENTRY.edit ? '수정' : '추가',
         id: id,
         enabledPrevButton: true,
@@ -233,7 +248,11 @@ function Edit() {
                     </Grid>
                   </Grid>
                   <Button
-                    className={classes.submitButton}
+                    className={
+                      UserAgentService.isMobile()
+                        ? classes.submitButtonMobile
+                        : classes.submitButton
+                    }
                     variant="contained"
                     color="primary"
                     type={'button'}

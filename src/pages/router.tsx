@@ -4,6 +4,7 @@ import {
   Switch,
   Route,
   Redirect,
+  withRouter,
 } from 'react-router-dom';
 import Trip from './trip/index';
 import Edit from './trip/edit';
@@ -38,4 +39,4 @@ function RouterProvider() {
   );
 }
 
-export default RouterProvider;
+export default withRouter(RouterProvider);

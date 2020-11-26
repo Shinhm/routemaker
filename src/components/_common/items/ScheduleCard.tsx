@@ -41,7 +41,7 @@ const useStyles = makeStyles((theme: Theme) =>
   createStyles({
     root: {
       textAlign: 'left',
-      marginTop: 5,
+      margin: '5px 0',
     },
     cardContent: {
       padding: '14px 0 0',
