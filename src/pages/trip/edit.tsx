@@ -23,6 +23,7 @@ import { format } from 'date-fns';
 import { Form, Formik, FormikProps } from 'formik';
 import Map from '../../components/trip/Map';
 import UserAgentService from '../../services/UserAgentService';
+import BottomNavigation from '../../components/_common/groups/BottomNavigation';
 
 export enum EDIT_ENTRY {
   write = 'write',
@@ -89,6 +90,7 @@ function Edit() {
   const query = useQuery();
   const history = useHistory();
   const [pending, setPending] = useState(true);
+  const [submitPending, setSubmitPending] = useState(false);
   const [form, setForm] = useState<IRouteRoutes>({
     date: '',
     regions: [],
@@ -109,6 +111,7 @@ function Edit() {
     if (edit === EDIT_ENTRY.write && filter) {
       return alert('이미 해당날짜에 일정을 등록했습니다.');
     }
+    setSubmitPending(true);
     try {
       if (edit === EDIT_ENTRY.write) {
         await FirebaseService.setCollection(
@@ -144,6 +147,8 @@ function Edit() {
       history.goBack();
     } catch (e) {
       console.log(e);
+    } finally {
+      setSubmitPending(false);
     }
   };
 
@@ -247,19 +252,13 @@ function Edit() {
                       <Map {...props} />
                     </Grid>
                   </Grid>
-                  <Button
-                    className={
-                      UserAgentService.isMobile()
-                        ? classes.submitButtonMobile
-                        : classes.submitButton
-                    }
-                    variant="contained"
-                    color="primary"
-                    type={'button'}
+                  <BottomNavigation
+                    pending={submitPending}
+                    enabledPrevButton={true}
+                    enabledActionButton={true}
                     onClick={submitForm}
-                  >
-                    {edit === EDIT_ENTRY.edit ? '수정하기' : '등록하기'}
-                  </Button>
+                    label={edit === EDIT_ENTRY.edit ? '수정' : '등록'}
+                  />
                 </Form>
               );
             }}

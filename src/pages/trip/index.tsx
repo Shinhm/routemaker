@@ -10,6 +10,7 @@ import { LinearProgress } from '@material-ui/core';
 import qs from 'querystring';
 import { Swiper, SwiperSlide } from 'swiper/react';
 import SwiperCore, { Navigation, Pagination, Scrollbar, A11y } from 'swiper';
+import BottomNavigation from '../../components/_common/groups/BottomNavigation';
 
 SwiperCore.use([Navigation, Pagination, Scrollbar, A11y]);
 
@@ -60,7 +61,6 @@ function Index() {
         appBar={{
           title: 'Schedule',
           id: id,
-          enabledAddButton: true,
         }}
       >
         {pending ? (
@@ -85,6 +85,7 @@ function Index() {
                 );
               })}
             </Swiper>
+            <BottomNavigation enabledAddButton={true} />
           </>
         )}
       </Layout>

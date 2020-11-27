@@ -1,38 +1,29 @@
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import {
   AppBar,
   Button,
   createStyles,
-  Fab,
   Grid,
   IconButton,
-  Snackbar,
   Theme,
   Toolbar,
   Typography,
+  useMediaQuery,
+  useTheme,
 } from '@material-ui/core';
 import { makeStyles } from '@material-ui/core/styles';
-import LinkIcon from '@material-ui/icons/Link';
 import NavigateBeforeIcon from '@material-ui/icons/NavigateBefore';
-import ClipboardJS from 'clipboard';
 import AddIcon from '@material-ui/icons/Add';
-import { Link, useHistory } from 'react-router-dom';
-import UserAgentService from '../../../services/UserAgentService';
+import { useHistory } from 'react-router-dom';
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
     root: {
-      flexGrow: 1,
-      paddingTop: 40,
-      maxWidth: 700,
-      margin: 'auto',
-      textAlign: 'center',
-    },
-    rootMobile: {
-      flexGrow: 1,
-      paddingBottom: 150,
-      paddingTop: 40,
-      maxWidth: 400,
+      maxWidth: theme.breakpoints.width('sm'),
+      [theme.breakpoints.up('sm')]: {
+        maxWidth: theme.breakpoints.width('lg'),
+        paddingTop: 50,
+      },
       margin: 'auto',
       textAlign: 'center',
     },
@@ -40,11 +31,6 @@ const useStyles = makeStyles((theme: Theme) =>
       width: 700,
       left: '50%',
       marginLeft: -350,
-    },
-    appBarMobile: {
-      width: 400,
-      left: '50%',
-      marginLeft: -200,
     },
     menuButton: {
       color: '#fff',
@@ -60,6 +46,48 @@ const useStyles = makeStyles((theme: Theme) =>
       right: theme.spacing(2),
       zIndex: 999999,
     },
+    bottomMenuBar: {
+      width: '100%',
+      height: 45,
+      left: 0,
+      [theme.breakpoints.up('sm')]: {
+        left: '50%',
+        width: theme.breakpoints.width('lg'),
+        marginLeft: -(theme.breakpoints.width('lg') / 2),
+      },
+      position: 'fixed',
+      bottom: 0,
+      zIndex: 99999,
+      borderRadius: '40px 40px 0 0',
+    },
+    bottomMainActionButton: {
+      width: '95%',
+      background: '#fff',
+      border: '1px solid',
+      borderColor: theme.palette.primary.main,
+      borderRadius: 50,
+      marginTop: -11,
+    },
+    bottomSideActionButtonLeft: {
+      zIndex: 100,
+      backgroundColor: theme.palette.primary.main,
+      borderRadius: '39px 80px 0 0',
+    },
+    bottomSideActionButtonRight: {
+      zIndex: 100,
+      backgroundColor: theme.palette.primary.main,
+      borderRadius: '80px 39px 0 0',
+    },
+    bottomLineField: {
+      width: '90%',
+      bottom: 0,
+      height: 110,
+      position: 'absolute',
+      borderBottom: '40px solid #1d04bf',
+      borderRadius: '35%',
+      marginLeft: '-20%',
+      marginBottom: -26,
+    },
   })
 );
 
@@ -67,7 +95,6 @@ interface IAppBarProps {
   title: string;
   id: string;
   enabledPrevButton?: boolean;
-  enabledAddButton?: boolean;
 }
 
 interface ILayoutProps {
@@ -78,70 +105,47 @@ interface ILayoutProps {
 function Layout({ children, appBar }: ILayoutProps) {
   const classes = useStyles();
   const history = useHistory();
-  const {
-    title,
-    id,
-    enabledPrevButton = false,
-    enabledAddButton = false,
-  } = appBar;
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
 
-  useEffect(() => {
-    const clipboardUrl = new ClipboardJS('.copy_url_btn');
-    clipboardUrl.on('success', function (e) {
-      e.clearSelection();
-    });
-  }, []);
+  const { title, id, enabledPrevButton = false } = appBar;
 
   return (
-    <div
-      className={
-        UserAgentService.isMobile() ? classes.rootMobile : classes.root
-      }
-    >
-      <AppBar
-        position="fixed"
-        className={
-          UserAgentService.isMobile() ? classes.appBarMobile : classes.appBar
-        }
-      >
-        <Toolbar variant="dense">
-          <Grid
-            container
-            direction="row"
-            justify="space-around"
-            alignItems="center"
-          >
-            <Grid item xs={1}>
-              {enabledPrevButton && (
-                <IconButton
-                  onClick={() => {
-                    history.goBack();
-                  }}
-                  edge="start"
-                  className={classes.menuButton}
-                  color="inherit"
-                  aria-label="menu"
-                >
-                  <NavigateBeforeIcon />
-                </IconButton>
-              )}
+    <div className={classes.root}>
+      {!isMobile && (
+        <AppBar position="fixed" className={classes.appBar}>
+          <Toolbar variant="dense">
+            <Grid
+              container
+              direction="row"
+              justify="space-around"
+              alignItems="center"
+            >
+              <Grid item xs={1}>
+                {enabledPrevButton && (
+                  <IconButton
+                    onClick={() => {
+                      history.goBack();
+                    }}
+                    edge="start"
+                    className={classes.menuButton}
+                    color="inherit"
+                    aria-label="menu"
+                  >
+                    <NavigateBeforeIcon />
+                  </IconButton>
+                )}
+              </Grid>
+              <Grid item xs={11}>
+                <Typography variant="h6" className={classes.title}>
+                  {title}
+                </Typography>
+              </Grid>
             </Grid>
-            <Grid item xs={11}>
-              <Typography variant="h6" className={classes.title}>
-                {title}
-              </Typography>
-            </Grid>
-          </Grid>
-        </Toolbar>
-      </AppBar>
-      {children}
-      {enabledAddButton && (
-        <Link to={`/${id}/write`}>
-          <Fab className={classes.floatButton} color="primary" aria-label="add">
-            <AddIcon />
-          </Fab>
-        </Link>
+          </Toolbar>
+        </AppBar>
       )}
+      {children}
     </div>
   );
 }

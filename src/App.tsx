@@ -25,6 +25,15 @@ const theme = createMuiTheme({
     fontFamily: 'Spoqa Han Sans',
     fontSize: 12,
   },
+  breakpoints: {
+    values: {
+      xl: 700,
+      lg: 700,
+      md: 700,
+      xs: 400,
+      sm: 400,
+    },
+  },
 });
 
 function App() {
