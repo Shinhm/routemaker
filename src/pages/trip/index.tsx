@@ -11,6 +11,7 @@ import qs from 'querystring';
 import { Swiper, SwiperSlide } from 'swiper/react';
 import SwiperCore, { Navigation, Pagination, Scrollbar, A11y } from 'swiper';
 import BottomNavigation from '../../components/_common/groups/BottomNavigation';
+import { format } from 'date-fns';
 
 SwiperCore.use([Navigation, Pagination, Scrollbar, A11y]);
 
@@ -27,7 +28,9 @@ function Index() {
 
   const fetchRoute = useCallback(async () => {
     try {
-      const result = await FirebaseService.getCollection().doc(id).get();
+      const result = await FirebaseService.getCollection('routeMaker')
+        .doc(id)
+        .get();
       const { routes = [] } = result.data() as IRoute;
       setRoutes(routes);
     } catch (e) {
@@ -47,10 +50,15 @@ function Index() {
   }, [fetchRoute, id]);
 
   useEffect(() => {
+    let activeIndex = routes?.findIndex(
+      (tag) => tag.date === format(new Date(), 'yyyy-MM-dd')
+    );
     if (query.scroll) {
-      const activeIndex = routes?.findIndex(
+      activeIndex = routes?.findIndex(
         (tag) => tag.date === query.scroll.toString()
       );
+    }
+    if (activeIndex) {
       controlledSwiper?.slideTo(activeIndex);
     }
   }, [routes, controlledSwiper, query.scroll]);
@@ -71,11 +79,11 @@ function Index() {
             <Swiper
               onSwiper={setControlledSwiper}
               spaceBetween={10}
-              style={{ marginTop: 10, padding: '0 15px' }}
+              style={{ marginTop: 10, padding: '0 15px', marginBottom: 50 }}
             >
               {routes?.map((route) => {
                 return (
-                  <SwiperSlide key={route.date}>
+                  <SwiperSlide key={route.date} style={{ zIndex: 10 }}>
                     <ScheduleCard
                       route={route}
                       id={id}
@@ -85,7 +93,7 @@ function Index() {
                 );
               })}
             </Swiper>
-            <BottomNavigation enabledAddButton={true} />
+            <BottomNavigation enabledAddButton={true} id={id} />
           </>
         )}
       </Layout>

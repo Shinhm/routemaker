@@ -44,7 +44,7 @@ function App() {
     script.src = 'https://developers.kakao.com/sdk/js/kakao.min.js';
     script.async = true;
     script.onload = () => {
-      (window as any).Kakao.init('a848dd4558f2f5285f1fa2cadd40bca6');
+      window.Kakao.init('a848dd4558f2f5285f1fa2cadd40bca6');
     };
 
     document.head.appendChild(script);

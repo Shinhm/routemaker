@@ -1,7 +1,6 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import {
   AppBar,
-  Button,
   createStyles,
   Grid,
   IconButton,
@@ -13,7 +12,6 @@ import {
 } from '@material-ui/core';
 import { makeStyles } from '@material-ui/core/styles';
 import NavigateBeforeIcon from '@material-ui/icons/NavigateBefore';
-import AddIcon from '@material-ui/icons/Add';
 import { useHistory } from 'react-router-dom';
 
 const useStyles = makeStyles((theme: Theme) =>
@@ -25,6 +23,7 @@ const useStyles = makeStyles((theme: Theme) =>
         paddingTop: 50,
       },
       margin: 'auto',
+      marginBottom: 60,
       textAlign: 'center',
     },
     appBar: {
@@ -107,8 +106,20 @@ function Layout({ children, appBar }: ILayoutProps) {
   const history = useHistory();
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
+  const Kakao = window.Kakao;
 
   const { title, id, enabledPrevButton = false } = appBar;
+
+  useEffect(() => {
+    (async () => {
+      if (Kakao?.isInitialized()) {
+        const me = await Kakao.API.request({
+          url: '/v2/user/me',
+        });
+        console.log(me);
+      }
+    })();
+  }, [Kakao]);
 
   return (
     <div className={classes.root}>

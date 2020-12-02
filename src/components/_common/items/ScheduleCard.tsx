@@ -184,7 +184,7 @@ function ScheduleCard({ id, route, fetchRoute }: ScheduleCardProps) {
   };
 
   const handleConfirm = async (region: IRouteRoutesPlace, amount: string) => {
-    const result = await FirebaseService.getDoc(inviteCode);
+    const result = await FirebaseService.getDoc('routeMaker', inviteCode);
     const { routes = [], notice = '' } = result.data() || {};
     try {
       const createRegion = regions.map((fRegion) => {
@@ -203,6 +203,7 @@ function ScheduleCard({ id, route, fetchRoute }: ScheduleCardProps) {
         return route;
       });
       await FirebaseService.setCollection(
+        'routeMaker',
         {
           notice: notice,
           routes: updateRegion,

@@ -4,13 +4,13 @@ import {
   CircularProgress,
   createStyles,
   Grid,
-  IconButton,
   Theme,
 } from '@material-ui/core';
 import NavigateBeforeIcon from '@material-ui/icons/NavigateBefore';
 import AddIcon from '@material-ui/icons/Add';
 import { makeStyles } from '@material-ui/core/styles';
 import { useHistory } from 'react-router-dom';
+import UserAgentService from '../../../services/UserAgentService';
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -19,7 +19,7 @@ const useStyles = makeStyles((theme: Theme) =>
     },
     bottomMenuBar: {
       width: '100%',
-      height: 45,
+      height: 35,
       left: 0,
       [theme.breakpoints.up('sm')]: {
         left: '50%',
@@ -29,7 +29,6 @@ const useStyles = makeStyles((theme: Theme) =>
       position: 'fixed',
       bottom: 0,
       zIndex: 99999,
-      borderRadius: '40px 40px 0 0',
     },
     bottomMainActionButton: {
       width: '95%',
@@ -37,29 +36,27 @@ const useStyles = makeStyles((theme: Theme) =>
       border: '1px solid',
       borderColor: theme.palette.primary.main,
       borderRadius: 50,
-      marginTop: -11,
+      marginTop: -7,
+      [theme.breakpoints.up('sm')]: {
+        height: 50,
+        marginTop: -25,
+      },
     },
-    bottomSideActionButtonLeft: {
-      zIndex: 100,
-      height: 45,
-      backgroundColor: theme.palette.primary.main,
-      borderRadius: '39px 80px 0 0',
-    },
-    bottomSideActionButtonRight: {
-      zIndex: 100,
-      height: 45,
-      backgroundColor: theme.palette.primary.main,
-      borderRadius: '80px 39px 0 0',
-    },
-    bottomLineField: {
-      width: '90%',
-      bottom: 0,
-      height: 110,
-      position: 'absolute',
-      borderBottom: '40px solid #1d04bf',
-      borderRadius: '35%',
-      marginLeft: '-20%',
-      marginBottom: -26,
+    bottomSideActionButton: {
+      marginTop: -7,
+      border: '1px solid',
+      background: '#fff',
+      borderColor: theme.palette.primary.main,
+      borderRadius: 50,
+      height: 35,
+      '& span': {
+        lineHeight: 1,
+        color: theme.palette.primary.main,
+      },
+      [theme.breakpoints.up('sm')]: {
+        height: 60,
+        marginTop: -60,
+      },
     },
   })
 );
@@ -71,6 +68,7 @@ interface IBottomNavigationProps {
   enabledAddButton?: boolean;
   onClick?: () => void;
   label?: string;
+  id?: string;
 }
 
 function BottomNavigation({
@@ -80,6 +78,7 @@ function BottomNavigation({
   enabledPrevButton,
   onClick,
   label,
+  id,
 }: IBottomNavigationProps) {
   const classes = useStyles();
   const history = useHistory();
@@ -87,19 +86,20 @@ function BottomNavigation({
   return (
     <div className={classes.bottomMenuBar}>
       <Grid container>
-        <Grid item xs={3} className={classes.bottomSideActionButtonLeft}>
-          <IconButton
-            onClick={() => {
-              enabledPrevButton && history.goBack();
-            }}
-            className={classes.menuButton}
-            color="inherit"
-          >
-            {enabledPrevButton && <NavigateBeforeIcon />}
-          </IconButton>
+        <Grid item xs={3}>
+          {UserAgentService.isMobile() && enabledPrevButton && (
+            <Button
+              className={classes.bottomSideActionButton}
+              onClick={() => {
+                enabledPrevButton && history.goBack();
+              }}
+              color="inherit"
+            >
+              {<NavigateBeforeIcon />}
+            </Button>
+          )}
         </Grid>
         <Grid item xs={6}>
-          <div className={classes.bottomLineField} />
           {enabledActionButton && (
             <Button
               className={classes.bottomMainActionButton}
@@ -118,16 +118,18 @@ function BottomNavigation({
             </Button>
           )}
         </Grid>
-        <Grid item xs={3} className={classes.bottomSideActionButtonRight}>
-          <IconButton
-            onClick={() => {
-              enabledAddButton && history.push('/trip/write');
-            }}
-            className={classes.menuButton}
-            color="inherit"
-          >
-            {enabledAddButton && <AddIcon />}
-          </IconButton>
+        <Grid item xs={3}>
+          {enabledAddButton && (
+            <Button
+              onClick={() => {
+                enabledAddButton && history.push(`/${id}/write`);
+              }}
+              className={classes.bottomSideActionButton}
+              color="inherit"
+            >
+              {enabledAddButton && <AddIcon />}
+            </Button>
+          )}
         </Grid>
       </Grid>
     </div>

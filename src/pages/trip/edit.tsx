@@ -97,7 +97,7 @@ function Edit() {
   });
 
   const handleSubmit = async (formData: IRouteRoutes) => {
-    const result = await FirebaseService.getDoc(id);
+    const result = await FirebaseService.getDoc('routeMaker', id);
     const { routes = [], notice = '' } = result.data() || {};
     if (!formData.date) {
       return alert('날짜를 입력해주세요.');
@@ -115,6 +115,7 @@ function Edit() {
     try {
       if (edit === EDIT_ENTRY.write) {
         await FirebaseService.setCollection(
+          'routeMaker',
           {
             notice: notice,
             routes: routes.concat({
@@ -137,6 +138,7 @@ function Edit() {
           return route;
         });
         await FirebaseService.setCollection(
+          'routeMaker',
           {
             notice: notice,
             routes: updateRoutes,
@@ -155,7 +157,9 @@ function Edit() {
   const fetchRoute = useCallback(
     async (searchField: string) => {
       try {
-        const result = await FirebaseService.getCollection().doc(id).get();
+        const result = await FirebaseService.getCollection('routeMaker')
+          .doc(id)
+          .get();
         const { routes } = result.data() as IRoute;
         const getRoutesWithSearchField = routes
           .filter((route) => {

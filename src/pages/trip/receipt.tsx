@@ -90,7 +90,9 @@ function Receipt() {
   const fetchRoute = useCallback(
     async (searchField: string) => {
       try {
-        const result = await FirebaseService.getCollection().doc(id).get();
+        const result = await FirebaseService.getCollection('routeMaker')
+          .doc(id)
+          .get();
         const { routes } = result.data() as IRoute;
         const getRoutesWithSearchField = routes
           .filter((route) => {

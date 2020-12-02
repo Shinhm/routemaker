@@ -1,11 +1,10 @@
 import React from 'react';
-import Search from 'antd/es/input/Search';
 import './index.scss';
-import { Button } from 'antd';
 import Lottie from 'react-lottie';
 import enterLottie from '../assets/animation/lottie/enter-lottie.json';
 import FirebaseService from '../services/FirebaseService';
 import SessionStorageService from '../services/SessionStorageService';
+import { Button } from '@material-ui/core';
 
 function Index() {
   const lottieOption = {
@@ -17,29 +16,34 @@ function Index() {
     },
   };
 
-  const onSearch = async (value: string) => {
-    if (value.length < 5) {
-      alert('5자 이상을 입력해주세요.');
-      return;
-    }
-    const hasInviteCode = await FirebaseService.hasInviteCode(value);
-    if (!hasInviteCode) {
-      return alert('초대 코드가 존재하지 않습니다.');
-    }
-    SessionStorageService.set({ key: 'codeEnabled', value: true });
-    window.location.replace(`/${value}/trip`);
-  };
-
   const makeInviteCode = async () => {
     const randomNumber = Math.round(Math.random() * 9999999).toString();
     const encValue = btoa(randomNumber);
-    const hasInviteCode = await FirebaseService.hasInviteCode(randomNumber);
+    const hasInviteCode = await FirebaseService.hasInviteCode(
+      'routeMaker',
+      randomNumber
+    );
 
     if (hasInviteCode) {
       return makeInviteCode;
     }
     SessionStorageService.set({ key: 'codeEnabled', value: true });
     window.location.replace(`/${encValue}/trip`);
+  };
+
+  const kakaoLogin = (e: React.MouseEvent<HTMLButtonElement>) => {
+    e.preventDefault();
+    const Kakao = (window as any).Kakao;
+    Kakao.Auth.login({
+      success: async function (authObj: any) {
+        // // alert(JSON.stringify(authObj));
+        //
+        // console.log(me);
+      },
+      fail: function (err: any) {
+        alert(JSON.stringify(err));
+      },
+    });
   };
 
   return (
@@ -51,21 +55,28 @@ function Index() {
           width={350}
           style={{ margin: 'auto' }}
         />
-        <div style={{ width: 350, margin: '10px auto', display: 'flex' }}>
-          <Search
-            placeholder="초대코드 입력하기"
-            onSearch={onSearch}
-            style={{ width: 200, margin: 'auto' }}
-          />
+        <div
+          style={{
+            width: 350,
+            margin: '10px auto',
+            display: 'flex',
+            justifyContent: 'center',
+          }}
+        >
+          <Button onClick={kakaoLogin}>
+            <img
+              src="//k.kakaocdn.net/14/dn/btqCn0WEmI3/nijroPfbpCa4at5EIsjyf0/o.jpg"
+              width="222"
+              alt={''}
+            />
+          </Button>
         </div>
         <div style={{ width: 350, margin: '10px auto', display: 'flex' }}>
           <Button
-            ghost
-            block
             style={{ width: 200, margin: 'auto' }}
             onClick={makeInviteCode}
           >
-            코드 생성하기
+            비회원으로 시작하기
           </Button>
         </div>
       </div>

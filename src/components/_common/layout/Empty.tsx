@@ -6,7 +6,6 @@ import InboxIcon from '@material-ui/icons/Inbox';
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
     root: {
-      height: 500,
       width: 300,
       margin: '150px auto',
     },

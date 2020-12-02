@@ -19,23 +19,28 @@ class FirebaseService {
     }
   }
 
-  getCollection() {
+  getCollection(collectionId: string) {
     this.initFirebase();
     const db = firebase.firestore();
-    return db.collection('routemaker');
+    return db.collection(collectionId);
   }
 
-  async hasInviteCode(code: string) {
-    const collection = this.getCollection();
+  async hasInviteCode(collectionId: string, code: string) {
+    const collection = this.getCollection(collectionId);
     const getDoc = await collection.doc(code).get();
     return getDoc.exists;
   }
 
-  getDoc(id: string) {
-    return this.getCollection().doc(id).get();
+  getDoc(collectionId: string, id: string) {
+    return this.getCollection(collectionId).doc(id).get();
   }
 
-  updateRegions(routes: IRoute, formData: IRouteRoutes, id: string) {
+  updateRegions(
+    collectionId: string,
+    routes: IRoute,
+    formData: IRouteRoutes,
+    id: string
+  ) {
     const updateRoutes = routes.routes.map((route: IRouteRoutes) => {
       if (route.date === formData.date) {
         return {
@@ -47,13 +52,14 @@ class FirebaseService {
       return route;
     });
     return this.setCollection(
+      collectionId,
       { notice: routes.notice, routes: updateRoutes },
       id
     );
   }
 
-  setCollection(setData: any, id: string) {
-    return this.getCollection().doc(id).set(setData);
+  setCollection(collectionId: string, setData: any, id: string) {
+    return this.getCollection(collectionId).doc(id).set(setData);
   }
 }
 
