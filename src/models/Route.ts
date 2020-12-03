@@ -1,6 +1,7 @@
 export interface IRoute {
   routes: IRouteRoutes[];
   notice?: string;
+  owners?: string[];
 }
 
 export interface IRouteRoutes {

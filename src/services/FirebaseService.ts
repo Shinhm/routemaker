@@ -2,6 +2,11 @@ import firebase from 'firebase';
 import 'firebase/firestore';
 import { IRoute, IRouteRoutes } from '../models/Route';
 
+export enum FireStoreSchema {
+  route = 'routemaker',
+  users = 'users',
+}
+
 class FirebaseService {
   initFirebase() {
     const firebaseConfig = {
@@ -19,24 +24,24 @@ class FirebaseService {
     }
   }
 
-  getCollection(collectionId: string) {
+  getCollection(collectionId: FireStoreSchema) {
     this.initFirebase();
     const db = firebase.firestore();
     return db.collection(collectionId);
   }
 
-  async hasInviteCode(collectionId: string, code: string) {
+  async hasInviteCode(collectionId: FireStoreSchema, code: string) {
     const collection = this.getCollection(collectionId);
     const getDoc = await collection.doc(code).get();
     return getDoc.exists;
   }
 
-  getDoc(collectionId: string, id: string) {
+  getDoc(collectionId: FireStoreSchema, id: string) {
     return this.getCollection(collectionId).doc(id).get();
   }
 
   updateRegions(
-    collectionId: string,
+    collectionId: FireStoreSchema,
     routes: IRoute,
     formData: IRouteRoutes,
     id: string
@@ -58,7 +63,7 @@ class FirebaseService {
     );
   }
 
-  setCollection(collectionId: string, setData: any, id: string) {
+  setCollection(collectionId: FireStoreSchema, setData: any, id: string) {
     return this.getCollection(collectionId).doc(id).set(setData);
   }
 }

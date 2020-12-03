@@ -20,6 +20,7 @@
     "date-fns": "^2.16.1",
     "firebase": "^8.0.0",
     "formik": "^2.2.2",
+    "immer": "^8.0.0",
     "immutability-helper": "^3.1.1",
     "moment": "^2.29.1",
     "node-sass": "^4.0.0",
@@ -28,9 +29,12 @@
     "react-dom": "^17.0.1",
     "react-hook-form": "^6.11.0",
     "react-lottie": "^1.2.3",
+    "react-redux": "latest",
     "react-router-dom": "^5.2.0",
     "react-scripts": "4.0.0",
+    "redux": "latest",
     "swiper": "^6.3.5",
+    "typesafe-actions": "latest",
     "typescript": "^4.0.3",
     "web-vitals": "^0.2.4"
   },
@@ -72,6 +76,7 @@
     "@types/clipboard": "^2.0.1",
     "@types/crypto-js": "^4.0.1",
     "@types/react-lottie": "^1.2.5",
+    "@types/react-redux": "^7.1.11",
     "@types/react-router-dom": "^5.1.6",
     "eslint-config-prettier": "^6.15.0",
     "eslint-plugin-prettier": "^3.1.4"

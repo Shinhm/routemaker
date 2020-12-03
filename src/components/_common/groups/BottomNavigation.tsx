@@ -28,7 +28,7 @@ const useStyles = makeStyles((theme: Theme) =>
       },
       position: 'fixed',
       bottom: 0,
-      zIndex: 99999,
+      zIndex: 10,
     },
     bottomMainActionButton: {
       width: '95%',

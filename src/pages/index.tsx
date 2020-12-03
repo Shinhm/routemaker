@@ -2,11 +2,30 @@ import React from 'react';
 import './index.scss';
 import Lottie from 'react-lottie';
 import enterLottie from '../assets/animation/lottie/enter-lottie.json';
-import FirebaseService from '../services/FirebaseService';
+import FirebaseService, { FireStoreSchema } from '../services/FirebaseService';
 import SessionStorageService from '../services/SessionStorageService';
 import { Button } from '@material-ui/core';
+import { useHistory } from 'react-router-dom';
+import useQuery from '../hooks/useQuery';
+
+export const makeInviteCode = async () => {
+  const randomNumber = Math.round(Math.random() * 9999999).toString();
+  const encValue = btoa(randomNumber);
+  const hasInviteCode = await FirebaseService.hasInviteCode(
+    FireStoreSchema.route,
+    randomNumber
+  );
+
+  if (hasInviteCode) {
+    return makeInviteCode;
+  }
+
+  return encValue;
+};
 
 function Index() {
+  const history = useHistory();
+  const { query } = useQuery();
   const lottieOption = {
     loop: true,
     autoplay: true,
@@ -16,29 +35,17 @@ function Index() {
     },
   };
 
-  const makeInviteCode = async () => {
-    const randomNumber = Math.round(Math.random() * 9999999).toString();
-    const encValue = btoa(randomNumber);
-    const hasInviteCode = await FirebaseService.hasInviteCode(
-      'routeMaker',
-      randomNumber
-    );
-
-    if (hasInviteCode) {
-      return makeInviteCode;
-    }
-    SessionStorageService.set({ key: 'codeEnabled', value: true });
-    window.location.replace(`/${encValue}/trip`);
-  };
-
   const kakaoLogin = (e: React.MouseEvent<HTMLButtonElement>) => {
     e.preventDefault();
-    const Kakao = (window as any).Kakao;
+    const redirectUrl = (query.continue || '/user') as string;
+    const Kakao = window.Kakao;
     Kakao.Auth.login({
-      success: async function (authObj: any) {
-        // // alert(JSON.stringify(authObj));
-        //
-        // console.log(me);
+      success: (authObj: any) => {
+        SessionStorageService.set({
+          key: 'kakaoAuth',
+          value: JSON.stringify(authObj),
+        });
+        history.push(redirectUrl);
       },
       fail: function (err: any) {
         alert(JSON.stringify(err));
@@ -74,7 +81,10 @@ function Index() {
         <div style={{ width: 350, margin: '10px auto', display: 'flex' }}>
           <Button
             style={{ width: 200, margin: 'auto' }}
-            onClick={makeInviteCode}
+            onClick={async () => {
+              const id = await makeInviteCode();
+              history.replace(`/${id}/trip`);
+            }}
           >
             비회원으로 시작하기
           </Button>

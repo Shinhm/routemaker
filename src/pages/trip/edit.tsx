@@ -1,103 +1,52 @@
 import React, { useCallback, useEffect, useState } from 'react';
-import FirebaseService from '../../services/FirebaseService';
-import { useHistory, useLocation, useParams } from 'react-router-dom';
+import FirebaseService, {
+  FireStoreSchema,
+} from '../../services/FirebaseService';
+import { useHistory, useParams } from 'react-router-dom';
 import { IRoute, IRouteRoutes } from '../../models/Route';
-import qs from 'querystring';
 import EncryptService from '../../services/EncryptService';
 import Layout from '../../components/_common/layout/Layout';
 import {
-  createStyles,
-  Grid,
-  InputAdornment,
-  TextField,
-  Theme,
-  Input,
   Container,
   FormControl,
+  Grid,
+  Input,
+  InputAdornment,
   InputLabel,
-  Button,
   LinearProgress,
+  TextField,
 } from '@material-ui/core';
-import { makeStyles } from '@material-ui/core/styles';
 import { format } from 'date-fns';
 import { Form, Formik, FormikProps } from 'formik';
 import Map from '../../components/trip/Map';
-import UserAgentService from '../../services/UserAgentService';
 import BottomNavigation from '../../components/_common/groups/BottomNavigation';
+import { useEditStyle } from './edit.style';
+import useQuery from '../../hooks/useQuery';
+import { useDispatch, useSelector } from 'react-redux';
+import { IRootState } from '../../store';
+import { setRoute } from '../../store/RouteStore';
 
 export enum EDIT_ENTRY {
   write = 'write',
   edit = 'edit',
 }
 
-function useQuery() {
-  return qs.parse(useLocation().search.replace('?', ''));
-}
-
-const useStyles = makeStyles((theme: Theme) =>
-  createStyles({
-    root: {
-      margin: ' 20px auto',
-    },
-    menuButton: {
-      color: '#fff',
-    },
-    title: {
-      flexGrow: 1,
-      textAlign: 'left',
-      color: '#fff',
-    },
-    floatButton: {
-      position: 'fixed',
-      bottom: theme.spacing(2),
-      right: theme.spacing(2),
-      zIndex: 999999,
-    },
-    submitButton: {
-      backgroundColor: theme.palette.primary.main,
-      color: '#fff',
-      height: 50,
-      fontSize: 17,
-      width: 700,
-      fontWeight: 500,
-      position: 'fixed',
-      marginLeft: '-350px',
-      bottom: 0,
-      left: '50%',
-      borderBottomLeftRadius: 0,
-      borderBottomRightRadius: 0,
-    },
-    submitButtonMobile: {
-      backgroundColor: theme.palette.primary.main,
-      color: '#fff',
-      height: 50,
-      fontSize: 17,
-      width: 400,
-      fontWeight: 500,
-      position: 'fixed',
-      marginLeft: '-200px',
-      bottom: 0,
-      left: '50%',
-      borderBottomLeftRadius: 0,
-      borderBottomRightRadius: 0,
-    },
-  })
-);
-
 function Edit() {
-  const classes = useStyles();
+  const classes = useEditStyle();
   const { id, edit }: { id: string; edit: string } = useParams();
-  const query = useQuery();
+  const { query } = useQuery();
   const history = useHistory();
+  const dispatch = useDispatch();
   const [pending, setPending] = useState(true);
   const [submitPending, setSubmitPending] = useState(false);
-  const [form, setForm] = useState<IRouteRoutes>({
-    date: '',
-    regions: [],
-  });
+  const { route, routes: rootRoutes } = useSelector(
+    (state: IRootState) => state.route
+  );
+
+  const { routes } = rootRoutes as IRoute;
 
   const handleSubmit = async (formData: IRouteRoutes) => {
-    const result = await FirebaseService.getDoc('routeMaker', id);
+    const result = await FirebaseService.getDoc(FireStoreSchema.route, id);
     const { routes = [], notice = '' } = result.data() || {};
     if (!formData.date) {
       return alert('날짜를 입력해주세요.');
@@ -115,7 +64,7 @@ function Edit() {
     try {
       if (edit === EDIT_ENTRY.write) {
         await FirebaseService.setCollection(
-          'routeMaker',
+          FireStoreSchema.route,
           {
             notice: notice,
             routes: routes.concat({
@@ -138,7 +87,7 @@ function Edit() {
           return route;
         });
         await FirebaseService.setCollection(
-          'routeMaker',
+          FireStoreSchema.route,
           {
             notice: notice,
             routes: updateRoutes,
@@ -156,10 +105,19 @@ function Edit() {
 
   const fetchRoute = useCallback(
     async (searchField: string) => {
+      if (routes) {
+        const getRoutesWithSearchField = routes
+          .filter((route) => {
+            return route.date === searchField;
+          })
+          .pop();
+        if (getRoutesWithSearchField) {
+          dispatch(setRoute(getRoutesWithSearchField));
+        }
+        return setPending(false);
+      }
       try {
-        const result = await FirebaseService.getCollection('routeMaker')
-          .doc(id)
-          .get();
+        const result = await FirebaseService.getDoc(FireStoreSchema.route, id);
         const { routes } = result.data() as IRoute;
         const getRoutesWithSearchField = routes
           .filter((route) => {
@@ -167,7 +125,7 @@ function Edit() {
           })
           .pop();
         if (getRoutesWithSearchField) {
-          setForm(getRoutesWithSearchField);
+          dispatch(setRoute(getRoutesWithSearchField));
         }
       } catch (e) {
         console.log(e);
@@ -180,7 +138,7 @@ function Edit() {
 
   useEffect(() => {
     if (edit !== EDIT_ENTRY.edit && edit !== EDIT_ENTRY.write) {
-      return window.location.replace(`/${id}/trip`);
+      return history.replace(`/${id}/trip`);
     }
     if (edit === EDIT_ENTRY.edit) {
       const q = EncryptService.decrypt(query.q.toString());
@@ -188,7 +146,7 @@ function Edit() {
     } else {
       setPending(false);
     }
-  }, [edit, fetchRoute, id, query.q]);
+  }, [history, edit, fetchRoute, id, query.q]);
 
   return (
     <Layout
@@ -204,9 +162,9 @@ function Edit() {
         <Container className={classes.root}>
           <Formik
             initialValues={{
-              budget: form.budget || '',
-              regions: form.regions,
-              date: form.date,
+              budget: route?.budget || '',
+              regions: route?.regions || [],
+              date: route?.date || '',
             }}
             enableReinitialize={true}
             onSubmit={handleSubmit}

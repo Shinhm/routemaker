@@ -92,6 +92,7 @@ function Regions({ setFieldValue, values }: FormikProps<any>) {
         <ConfirmDialog
           handleClose={handleCloseRemoveDialog}
           handleConfirm={handleRemoveRegion}
+          message={'정말 삭제하시겠습니까?'}
         />
       )}
     </div>

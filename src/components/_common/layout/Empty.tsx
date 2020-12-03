@@ -15,15 +15,21 @@ const useStyles = makeStyles((theme: Theme) =>
   })
 );
 
-function Empty() {
+interface IEmptyProps {
+  message: string;
+}
+
+function Empty({ message }: IEmptyProps) {
   const classes = useStyles();
   return (
     <div className={classes.root}>
       <InboxIcon fontSize={'large'} className={classes.emptyColor} />
-      <Typography component={'h6'} className={classes.emptyColor}>
-        루트가 비었습니다.
-        <br />
-        아래 + 버튼으로 추가해주세요.
+      <Typography
+        component={'h6'}
+        className={classes.emptyColor}
+        style={{ whiteSpace: 'pre-wrap' }}
+      >
+        {message}
       </Typography>
     </div>
   );

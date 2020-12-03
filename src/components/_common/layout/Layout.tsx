@@ -1,8 +1,8 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   AppBar,
+  Avatar,
   createStyles,
-  Grid,
   IconButton,
   Theme,
   Toolbar,
@@ -12,7 +12,11 @@ import {
 } from '@material-ui/core';
 import { makeStyles } from '@material-ui/core/styles';
 import NavigateBeforeIcon from '@material-ui/icons/NavigateBefore';
-import { useHistory } from 'react-router-dom';
+import { useHistory, useLocation } from 'react-router-dom';
+import { useDispatch, useSelector } from 'react-redux';
+import { setKakaoAuth } from '../../../store/UserStore';
+import { IRootState } from '../../../store';
+import SimpleDialog from '../dialogs/SimpleDialog';
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -20,7 +24,7 @@ const useStyles = makeStyles((theme: Theme) =>
       maxWidth: theme.breakpoints.width('sm'),
       [theme.breakpoints.up('sm')]: {
         maxWidth: theme.breakpoints.width('lg'),
-        paddingTop: 50,
+        paddingTop: 70,
       },
       margin: 'auto',
       marginBottom: 60,
@@ -92,7 +96,7 @@ const useStyles = makeStyles((theme: Theme) =>
 
 interface IAppBarProps {
   title: string;
-  id: string;
+  id?: string;
   enabledPrevButton?: boolean;
 }
 
@@ -104,59 +108,94 @@ interface ILayoutProps {
 function Layout({ children, appBar }: ILayoutProps) {
   const classes = useStyles();
   const history = useHistory();
+  const location = useLocation();
+  const dispatch = useDispatch();
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
-  const Kakao = window.Kakao;
+  const { title, enabledPrevButton = false } = appBar;
 
-  const { title, id, enabledPrevButton = false } = appBar;
+  const { kakaoAuth } = useSelector((state: IRootState) => state.user);
+
+  const [openDialog, setOpenDialog] = useState(false);
+  const [dialogMessage, setDialogMessage] = useState('');
+
+  const handleCloseDialog = () => {
+    setOpenDialog(false);
+    history.push('/enter');
+  };
+
+  const handleOpenDialog = (message: string) => {
+    setDialogMessage(message);
+    setOpenDialog(true);
+  };
 
   useEffect(() => {
-    (async () => {
-      if (Kakao?.isInitialized()) {
-        const me = await Kakao.API.request({
-          url: '/v2/user/me',
-        });
-        console.log(me);
+    setTimeout(async () => {
+      if (kakaoAuth) {
+        return;
       }
-    })();
-  }, [Kakao]);
+      if (window.Kakao?.isInitialized()) {
+        try {
+          const me = await window.Kakao.API.request({
+            url: '/v2/user/me',
+          });
+          dispatch(setKakaoAuth(me));
+        } catch (e) {
+          if (
+            location.pathname === '/user' &&
+            JSON.parse(JSON.parse(e)).code === -401
+          ) {
+            handleOpenDialog('로그인이 만료되었습니다.');
+          }
+        }
+      }
+    }, 500);
+  }, [location, kakaoAuth, dispatch]);
 
   return (
     <div className={classes.root}>
       {!isMobile && (
         <AppBar position="fixed" className={classes.appBar}>
-          <Toolbar variant="dense">
-            <Grid
-              container
-              direction="row"
-              justify="space-around"
-              alignItems="center"
-            >
-              <Grid item xs={1}>
-                {enabledPrevButton && (
-                  <IconButton
-                    onClick={() => {
-                      history.goBack();
-                    }}
-                    edge="start"
-                    className={classes.menuButton}
-                    color="inherit"
-                    aria-label="menu"
-                  >
-                    <NavigateBeforeIcon />
-                  </IconButton>
-                )}
-              </Grid>
-              <Grid item xs={11}>
-                <Typography variant="h6" className={classes.title}>
-                  {title}
-                </Typography>
-              </Grid>
-            </Grid>
+          <Toolbar>
+            {enabledPrevButton && (
+              <IconButton
+                onClick={() => {
+                  history.goBack();
+                }}
+                edge="start"
+                className={classes.menuButton}
+                color="inherit"
+                aria-label="menu"
+              >
+                <NavigateBeforeIcon />
+              </IconButton>
+            )}
+            <Typography variant="h6" className={classes.title}>
+              {title}
+            </Typography>
+            {location.pathname !== '/user' && (
+              <IconButton
+                onClick={() => {
+                  if (kakaoAuth) {
+                    history.push('/user');
+                  } else {
+                    handleOpenDialog('로그인 먼저 진행해주세요.');
+                  }
+                }}
+              >
+                <Avatar
+                  alt="Remy Sharp"
+                  src={kakaoAuth?.properties?.profile_image}
+                />
+              </IconButton>
+            )}
           </Toolbar>
         </AppBar>
       )}
       {children}
+      {openDialog && (
+        <SimpleDialog handleClose={handleCloseDialog} message={dialogMessage} />
+      )}
     </div>
   );
 }

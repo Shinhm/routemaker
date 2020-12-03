@@ -31,7 +31,9 @@ import ReceiptIcon from '@material-ui/icons/Receipt';
 import Enum, { REGION_CATEGORY } from '../../../constants/Enum';
 import { format } from 'date-fns';
 import AmountDialog from '../dialogs/AmountDialog';
-import FirebaseService from '../../../services/FirebaseService';
+import FirebaseService, {
+  FireStoreSchema,
+} from '../../../services/FirebaseService';
 import { renderToString } from 'react-dom/server';
 import StarMarker from '../map/StarMarker';
 import ShareIcon from '@material-ui/icons/Share';
@@ -184,7 +186,10 @@ function ScheduleCard({ id, route, fetchRoute }: ScheduleCardProps) {
   };
 
   const handleConfirm = async (region: IRouteRoutesPlace, amount: string) => {
-    const result = await FirebaseService.getDoc('routeMaker', inviteCode);
+    const result = await FirebaseService.getDoc(
+      FireStoreSchema.route,
+      inviteCode
+    );
     const { routes = [], notice = '' } = result.data() || {};
     try {
       const createRegion = regions.map((fRegion) => {
@@ -203,7 +208,7 @@ function ScheduleCard({ id, route, fetchRoute }: ScheduleCardProps) {
         return route;
       });
       await FirebaseService.setCollection(
-        'routeMaker',
+        FireStoreSchema.route,
         {
           notice: notice,
           routes: updateRegion,

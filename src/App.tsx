@@ -3,8 +3,12 @@ import './styles/App.css';
 import RouterProvider from './pages/router';
 import { createMuiTheme } from '@material-ui/core/styles';
 import { ThemeProvider } from '@material-ui/styles';
-import { withRouter } from 'react-router-dom';
 import UserAgentService from './services/UserAgentService';
+import { Provider } from 'react-redux';
+import { createStore } from 'redux';
+import rootReducer from './store';
+
+const store = createStore(rootReducer);
 
 const theme = createMuiTheme({
   palette: {
@@ -52,9 +56,11 @@ function App() {
 
   return (
     <ThemeProvider theme={theme}>
-      <RouterProvider />
+      <Provider store={store}>
+        <RouterProvider />
+      </Provider>
     </ThemeProvider>
   );
 }
 
-export default withRouter(App);
+export default App;

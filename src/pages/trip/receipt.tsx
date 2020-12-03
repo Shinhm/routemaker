@@ -3,7 +3,6 @@ import Layout from '../../components/_common/layout/Layout';
 import {
   Button,
   ButtonGroup,
-  createStyles,
   Divider,
   Grid,
   LinearProgress,
@@ -12,106 +11,68 @@ import {
   ListItemSecondaryAction,
   ListItemText,
   Paper,
-  Theme,
 } from '@material-ui/core';
-import FirebaseService from '../../services/FirebaseService';
+import FirebaseService, {
+  FireStoreSchema,
+} from '../../services/FirebaseService';
 import { IRoute, IRouteRoutes, IRouteRoutesPlace } from '../../models/Route';
 import EncryptService from '../../services/EncryptService';
-import { Link, useLocation, useParams } from 'react-router-dom';
-import qs from 'querystring';
-import { makeStyles } from '@material-ui/core/styles';
+import { Link, useParams } from 'react-router-dom';
 import { format } from 'date-fns';
 import RemoveIcon from '@material-ui/icons/Remove';
 import AddIcon from '@material-ui/icons/Add';
-
-function useQuery() {
-  return qs.parse(useLocation().search.replace('?', ''));
-}
-
-const useStyles = makeStyles((theme: Theme) =>
-  createStyles({
-    root: {
-      margin: '30px 15px',
-      padding: 30,
-      textAlign: 'left',
-      letterSpacing: -2,
-      lineHeight: 1,
-    },
-    amountUnit: {
-      fontSize: 19,
-      marginLeft: 5,
-    },
-    solidDivider: {
-      margin: '20px 0 0',
-      height: 3,
-      backgroundColor: '#000',
-    },
-    budgetField: {
-      letterSpacing: 0,
-      textAlign: 'right',
-      fontSize: 14,
-      fontWeight: 500,
-    },
-    listItem: {
-      '& span': {
-        fontSize: 15,
-      },
-      '& p': {
-        fontSize: 13,
-      },
-    },
-    totalItem: {
-      '& span': {
-        fontSize: 17,
-        color: theme.palette.primary.main,
-      },
-    },
-    totalAmount: {
-      fontSize: 17,
-      color: theme.palette.primary.main,
-    },
-    buttonGroup: {
-      '& button': {
-        padding: 0,
-      },
-    },
-  })
-);
+import { useReceiptStyles } from './receipt.style';
+import useQuery from '../../hooks/useQuery';
+import { useSelector } from 'react-redux';
+import { IRootState } from '../../store';
 
 function Receipt() {
-  const classes = useStyles();
+  const classes = useReceiptStyles();
   const { id }: { id: string } = useParams();
-  const query = useQuery();
+  const { query } = useQuery();
+
+  const { routes: rootRoutes } = useSelector(
+    (state: IRootState) => state.route
+  );
+
+  const { routes } = rootRoutes || {};
+
   const [pending, setPending] = useState(true);
   const [receiptInfo, setReceiptInfo] = useState<IRouteRoutes>();
   const [totalAmount, setTotalAmount] = useState(0);
   const [personCount, setPersonCount] = useState(1);
 
+  const setUnitField = (routes: IRouteRoutes[], searchField: string) => {
+    const getRoutesWithSearchField = routes
+      .filter((route) => {
+        return route.date === searchField;
+      })
+      .pop();
+    if (getRoutesWithSearchField) setReceiptInfo(getRoutesWithSearchField);
+    let routesTotalAmount: number = 0;
+    getRoutesWithSearchField?.regions.forEach((a: IRouteRoutesPlace) => {
+      routesTotalAmount += a.amount ? parseInt(a.amount) : 0;
+    });
+    setTotalAmount(routesTotalAmount);
+  };
+
   const fetchRoute = useCallback(
     async (searchField: string) => {
+      if (routes) {
+        setUnitField(routes, searchField);
+        return setPending(false);
+      }
       try {
-        const result = await FirebaseService.getCollection('routeMaker')
-          .doc(id)
-          .get();
+        const result = await FirebaseService.getDoc(FireStoreSchema.route, id);
         const { routes } = result.data() as IRoute;
-        const getRoutesWithSearchField = routes
-          .filter((route) => {
-            return route.date === searchField;
-          })
-          .pop();
-        if (getRoutesWithSearchField) setReceiptInfo(getRoutesWithSearchField);
-        let routesTotalAmount: number = 0;
-        getRoutesWithSearchField?.regions.forEach((a: IRouteRoutesPlace) => {
-          routesTotalAmount += a.amount ? parseInt(a.amount) : 0;
-        });
-        setTotalAmount(routesTotalAmount);
+        setUnitField(routes, searchField);
       } catch (e) {
         console.log(e);
       } finally {
         setPending(false);
       }
     },
-    [id]
+    [routes, id]
   );
 
   const handlePersonCount = (action: string) => {
