@@ -44,61 +44,13 @@ const useStyles = makeStyles((theme: Theme) =>
       minHeight: 50,
     },
     menuButton: {
-      color: '#fff',
+      // color: '#fff',
     },
     title: {
       flexGrow: 1,
       textAlign: 'left',
-      color: '#fff',
+      // color: '#fff',
       paddingLeft: 16,
-    },
-    floatButton: {
-      position: 'fixed',
-      bottom: theme.spacing(2),
-      right: theme.spacing(2),
-      zIndex: 999999,
-    },
-    bottomMenuBar: {
-      width: '100%',
-      height: 45,
-      left: 0,
-      [theme.breakpoints.up('sm')]: {
-        left: '50%',
-        width: theme.breakpoints.width('lg'),
-        marginLeft: -(theme.breakpoints.width('lg') / 2),
-      },
-      position: 'fixed',
-      bottom: 0,
-      zIndex: 99999,
-      borderRadius: '40px 40px 0 0',
-    },
-    bottomMainActionButton: {
-      width: '95%',
-      background: '#fff',
-      border: '1px solid',
-      borderColor: theme.palette.primary.main,
-      borderRadius: 50,
-      marginTop: -11,
-    },
-    bottomSideActionButtonLeft: {
-      zIndex: 100,
-      backgroundColor: theme.palette.primary.main,
-      borderRadius: '39px 80px 0 0',
-    },
-    bottomSideActionButtonRight: {
-      zIndex: 100,
-      backgroundColor: theme.palette.primary.main,
-      borderRadius: '80px 39px 0 0',
-    },
-    bottomLineField: {
-      width: '90%',
-      bottom: 0,
-      height: 110,
-      position: 'absolute',
-      borderBottom: '40px solid #1d04bf',
-      borderRadius: '35%',
-      marginLeft: '-20%',
-      marginBottom: -26,
     },
   })
 );
@@ -170,7 +122,6 @@ function Layout({ children, appBar }: ILayoutProps) {
               }}
               edge="start"
               className={classes.menuButton}
-              color="inherit"
               aria-label="menu"
             >
               <NavigateBeforeIcon />

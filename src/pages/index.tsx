@@ -4,7 +4,7 @@ import Lottie from 'react-lottie';
 import enterLottie from '../assets/animation/lottie/enter-lottie.json';
 import FirebaseService, { FireStoreSchema } from '../services/FirebaseService';
 import SessionStorageService from '../services/SessionStorageService';
-import { Button } from '@material-ui/core';
+import { Button, useTheme } from '@material-ui/core';
 import { useHistory } from 'react-router-dom';
 import useQuery from '../hooks/useQuery';
 
@@ -25,6 +25,7 @@ export const makeInviteCode = async () => {
 
 function Index() {
   const history = useHistory();
+  const theme = useTheme();
   const { query } = useQuery();
   const lottieOption = {
     loop: true,
@@ -54,7 +55,10 @@ function Index() {
   };
 
   return (
-    <div className="enter-main space-align-container">
+    <div
+      className="enter-main space-align-container"
+      style={{ backgroundColor: theme.palette.primary.main }}
+    >
       <div className="space-align-block">
         <Lottie
           options={lottieOption}

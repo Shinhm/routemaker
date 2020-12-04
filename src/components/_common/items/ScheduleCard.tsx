@@ -1,6 +1,7 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import {
   Avatar,
+  Button,
   Card,
   CardActions,
   CardContent,
@@ -11,6 +12,7 @@ import {
   Paper,
   Theme,
   Typography,
+  useTheme,
 } from '@material-ui/core';
 import { makeStyles } from '@material-ui/core/styles';
 import { IRouteRoutes, IRouteRoutesPlace } from '../../../models/Route';
@@ -37,6 +39,7 @@ import FirebaseService, {
 import { renderToString } from 'react-dom/server';
 import StarMarker from '../map/StarMarker';
 import ShareIcon from '@material-ui/icons/Share';
+import OpenInNewIcon from '@material-ui/icons/OpenInNew';
 import UserAgentService from '../../../services/UserAgentService';
 
 const useStyles = makeStyles((theme: Theme) =>
@@ -78,24 +81,24 @@ const useStyles = makeStyles((theme: Theme) =>
       opacity: 0.2,
     },
     amount: {
-      color: 'red',
+      color: theme.palette.error.dark,
       opacity: 1,
-      fontSize: 12,
-    },
-    groupName: {
-      color: theme.palette.primary.main,
-      opacity: 1,
-      fontSize: 12,
     },
     notice: {
       textAlign: 'center',
       fontSize: 11,
     },
     tMap: {
-      padding: '0 6px',
+      padding: '0',
       fontSize: 10,
-      color: 'red',
-      border: '1px solid',
+      marginTop: 10,
+      marginBottom: 10,
+      minWidth: 50,
+    },
+    openNewLinkICon: {
+      width: 15,
+      height: 15,
+      marginRight: 10,
     },
   })
 );
@@ -111,6 +114,7 @@ function ScheduleCard({ id, route, fetchRoute }: ScheduleCardProps) {
   const kakaoSDK = (window as any).Kakao;
   const classes = useStyles();
   const history = useHistory();
+  const theme = useTheme();
   const { id: inviteCode }: { id: string } = useParams();
   const { date, regions, budget } = route;
   const [open, setOpen] = useState(false);
@@ -329,9 +333,10 @@ function ScheduleCard({ id, route, fetchRoute }: ScheduleCardProps) {
                             variant="outlined"
                             style={{
                               borderColor:
-                                (index === 0 && 'green') ||
-                                (index === regions.length - 1 && 'red') ||
-                                '#1D04BF',
+                                (index === 0 && theme.palette.success.dark) ||
+                                (index === regions.length - 1 &&
+                                  theme.palette.error.dark) ||
+                                theme.palette.text.secondary,
                             }}
                           />
                           {regions.length !== index + 1 && (
@@ -340,7 +345,7 @@ function ScheduleCard({ id, route, fetchRoute }: ScheduleCardProps) {
                             />
                           )}
                         </TimelineSeparator>
-                        <TimelineContent>
+                        <TimelineContent style={{ padding: '1px 16px' }}>
                           <Grid container>
                             <Grid item xs={11}>
                               <a
@@ -348,41 +353,69 @@ function ScheduleCard({ id, route, fetchRoute }: ScheduleCardProps) {
                                 target={'_blank'}
                                 rel="noreferrer"
                               >
-                                {region.place_name}{' '}
+                                <Typography
+                                  variant="body1"
+                                  color="textPrimary"
+                                  component="span"
+                                >
+                                  {region.place_name}
+                                  <OpenInNewIcon
+                                    className={classes.openNewLinkICon}
+                                  />
+                                </Typography>
                               </a>
                               {region.category_group_name && (
-                                <span className={classes.groupName}>
+                                <Typography
+                                  variant="body2"
+                                  color="textSecondary"
+                                  component="span"
+                                >
                                   [{region.category_group_name}]
-                                </span>
+                                </Typography>
                               )}
                               <br />
                               {region?.time && (
-                                <span className={classes.groupName}>
+                                <Typography
+                                  variant="body2"
+                                  color="textSecondary"
+                                  component="span"
+                                >
                                   {region.time}에 방문예정
-                                </span>
+                                </Typography>
                               )}
                               {region?.time && region?.amount && (
-                                <span className={classes.groupName}>
+                                <Typography
+                                  variant="body2"
+                                  color="textSecondary"
+                                  component="span"
+                                >
                                   {' | '}
-                                </span>
+                                </Typography>
                               )}
                               {region?.amount && (
-                                <span
-                                  className={classes.amount}
-                                >{`사용금액: ${parseInt(
-                                  region.amount
-                                ).toLocaleString()}원`}</span>
+                                <Typography
+                                  variant="body2"
+                                  color="error"
+                                  component="span"
+                                >
+                                  {`사용금액: ${parseInt(
+                                    region.amount
+                                  ).toLocaleString()}원`}
+                                </Typography>
                               )}
                               <br />
                               {UserAgentService.isMobile() && (
-                                <a
-                                  href={`tmap://search?name=${region.place_name}`}
-                                  target={'_blank'}
-                                  rel="noreferrer"
+                                <Button
+                                  onClick={() => {
+                                    window.location.href = `tmap://search?name=${region.place_name}`;
+                                  }}
+                                  variant={'outlined'}
+                                  color={'secondary'}
+                                  size={'small'}
                                   className={classes.tMap}
                                 >
                                   T map
-                                </a>
+                                </Button>
                               )}
                             </Grid>
                             <Grid item xs={1}>

@@ -26,7 +26,7 @@ const useStyles = makeStyles((theme: Theme) =>
       height: '100%',
       backgroundColor: theme.palette.primary.main,
       border: 'none',
-      color: '#fff',
+      // color: '#fff',
       outline: 'none',
     },
   })

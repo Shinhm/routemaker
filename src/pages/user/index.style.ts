@@ -22,15 +22,15 @@ export const useUserStyle = makeStyles((theme: Theme) =>
     },
     favoriteIcon: {
       color: '#ed4956',
-      backgroundColor: '#fff',
+      backgroundColor: 'transparent',
     },
     pickIcon: {
-      color: '#000',
-      backgroundColor: '#fff',
+      color: theme.palette.text.secondary,
+      backgroundColor: 'transparent',
     },
     allIcon: {
       color: theme.palette.primary.main,
-      backgroundColor: '#fff',
+      backgroundColor: 'transparent',
     },
     makeButton: {
       marginLeft: 10,

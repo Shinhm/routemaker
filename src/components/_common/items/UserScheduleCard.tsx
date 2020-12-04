@@ -18,8 +18,10 @@ function UserScheduleCard({ imageUrl, dateRange, id }: IUserRoutes) {
   const classes = useStyles();
   return (
     <GridListTile key={imageUrl}>
-      <Link to={`/${id}/trip`}>
-        <img width={'100%'} src={imageUrl} alt={dateRange} />
+      <>
+        <Link to={`/${id}/trip`}>
+          <img width={'100%'} src={imageUrl} alt={dateRange} />
+        </Link>
         <GridListTileBar
           title={dateRange}
           actionIcon={
@@ -31,7 +33,7 @@ function UserScheduleCard({ imageUrl, dateRange, id }: IUserRoutes) {
             </IconButton>
           }
         />
-      </Link>
+      </>
     </GridListTile>
   );
 }

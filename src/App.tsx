@@ -7,38 +7,9 @@ import UserAgentService from './services/UserAgentService';
 import { Provider } from 'react-redux';
 import { createStore } from 'redux';
 import rootReducer from './store';
+import { CssBaseline, useMediaQuery } from '@material-ui/core';
 
 const store = createStore(rootReducer);
-
-const theme = createMuiTheme({
-  palette: {
-    primary: {
-      // Purple and green play nicely together.
-      main: '#1D04BF',
-    },
-  },
-  props: {
-    MuiToolbar: {
-      'aria-setsize': 2,
-    },
-    MuiIcon: {
-      fontSize: 'small',
-    },
-  },
-  typography: {
-    fontFamily: 'Spoqa Han Sans',
-    fontSize: 12,
-  },
-  breakpoints: {
-    values: {
-      xl: 700,
-      lg: 700,
-      md: 700,
-      xs: 400,
-      sm: 400,
-    },
-  },
-});
 
 function App() {
   useEffect(() => {
@@ -53,9 +24,40 @@ function App() {
 
     document.head.appendChild(script);
   }, []);
+  const prefersDarkMode = useMediaQuery('(prefers-color-scheme: dark)');
 
+  const theme = React.useMemo(
+    () =>
+      createMuiTheme({
+        palette: {
+          type: prefersDarkMode ? 'dark' : 'light',
+        },
+        props: {
+          MuiToolbar: {
+            'aria-setsize': 2,
+          },
+          MuiIcon: {
+            fontSize: 'small',
+          },
+        },
+        typography: {
+          fontFamily: 'Spoqa Han Sans',
+        },
+        breakpoints: {
+          values: {
+            xl: 700,
+            lg: 700,
+            md: 700,
+            xs: 400,
+            sm: 400,
+          },
+        },
+      }),
+    [prefersDarkMode]
+  );
   return (
     <ThemeProvider theme={theme}>
+      <CssBaseline />
       <Provider store={store}>
         <RouterProvider />
       </Provider>

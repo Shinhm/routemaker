@@ -15,7 +15,7 @@ import UserAgentService from '../../../services/UserAgentService';
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
     menuButton: {
-      color: '#fff',
+      // color: '#fff',
     },
     bottomMenuBar: {
       width: '100%',
@@ -32,7 +32,6 @@ const useStyles = makeStyles((theme: Theme) =>
     },
     bottomMainActionButton: {
       width: '95%',
-      background: '#fff',
       border: '1px solid',
       borderColor: theme.palette.primary.main,
       borderRadius: 50,
@@ -45,13 +44,13 @@ const useStyles = makeStyles((theme: Theme) =>
     bottomSideActionButton: {
       marginTop: -7,
       border: '1px solid',
-      background: '#fff',
+      // background: '#fff',
       borderColor: theme.palette.primary.main,
       borderRadius: 50,
       height: 35,
       '& span': {
         lineHeight: 1,
-        color: theme.palette.primary.main,
+        // color: theme.palette.primary.main,
       },
       [theme.breakpoints.up('sm')]: {
         height: 60,
@@ -93,7 +92,7 @@ function BottomNavigation({
               onClick={() => {
                 enabledPrevButton && history.goBack();
               }}
-              color="inherit"
+              variant="outlined"
             >
               {<NavigateBeforeIcon />}
             </Button>
@@ -104,6 +103,7 @@ function BottomNavigation({
             <Button
               className={classes.bottomMainActionButton}
               variant="contained"
+              color="primary"
               onClick={onClick}
               disabled={pending}
             >
@@ -124,8 +124,9 @@ function BottomNavigation({
               onClick={() => {
                 enabledAddButton && history.push(`/${id}/write`);
               }}
+              variant="contained"
+              color="primary"
               className={classes.bottomSideActionButton}
-              color="inherit"
             >
               {enabledAddButton && <AddIcon />}
             </Button>
