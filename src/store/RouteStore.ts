@@ -13,7 +13,11 @@ export const setRoute = (route: IRouteRoutes) => {
   return action(ROUTE, route);
 };
 
-const actions = { setRoutes, setRoute };
+export const clearRoute = () => {
+  return action(ROUTE, null);
+};
+
+const actions = { setRoutes, setRoute, clearRoute };
 type TAction = ActionType<typeof actions>;
 
 type TInitialStateProps = {

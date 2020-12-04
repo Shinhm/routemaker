@@ -9,9 +9,6 @@ const useStyles = makeStyles((theme: Theme) =>
       width: 300,
       margin: '150px auto',
     },
-    emptyColor: {
-      color: 'rgba(0,0,0,0.6)',
-    },
   })
 );
 
@@ -23,12 +20,8 @@ function Empty({ message }: IEmptyProps) {
   const classes = useStyles();
   return (
     <div className={classes.root}>
-      <InboxIcon fontSize={'large'} className={classes.emptyColor} />
-      <Typography
-        component={'h6'}
-        className={classes.emptyColor}
-        style={{ whiteSpace: 'pre-wrap' }}
-      >
+      <InboxIcon fontSize={'large'} />
+      <Typography component={'h6'} style={{ whiteSpace: 'pre-wrap' }}>
         {message}
       </Typography>
     </div>

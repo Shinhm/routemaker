@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import FirebaseService, {
   FireStoreSchema,
 } from '../../services/FirebaseService';
@@ -28,7 +28,6 @@ function Index() {
   const { query } = useQuery();
   const history = useHistory();
   const dispatch = useDispatch();
-  const didMountRef = useRef(false);
   const [pending, setPending] = useState(true);
   const [actionButtonPending, setActionButtonPending] = useState(false);
   const [enableActionButton, setEnableActionButton] = useState(true);
@@ -156,12 +155,9 @@ function Index() {
   }, [routes, controlledSwiper, query.scroll]);
 
   useEffect(() => {
-    console.log(routes);
     if (!routes || routes?.length === 0) {
-      console.log(routes);
       setEnableActionButton(false);
     } else if (kakaoAuth) {
-      console.log(kakaoAuth);
       setEnableActionButton(!owners.includes(kakaoAuth.id.toString()));
     } else {
       setEnableActionButton(true);
@@ -208,7 +204,7 @@ function Index() {
               onClick={copyRouteForMe}
               id={id}
               pending={actionButtonPending}
-              label={'일정 소유'}
+              label={'일정 PICK'}
             />
             {openDialog && (
               <ConfirmDialog

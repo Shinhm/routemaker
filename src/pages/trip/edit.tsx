@@ -24,7 +24,7 @@ import { useEditStyle } from './edit.style';
 import useQuery from '../../hooks/useQuery';
 import { useDispatch, useSelector } from 'react-redux';
 import { IRootState } from '../../store';
-import { setRoute } from '../../store/RouteStore';
+import { clearRoute, setRoute } from '../../store/RouteStore';
 
 export enum EDIT_ENTRY {
   write = 'write',
@@ -144,9 +144,10 @@ function Edit() {
       const q = EncryptService.decrypt(query.q.toString());
       fetchRoute(q).then((r) => r);
     } else {
+      dispatch(clearRoute());
       setPending(false);
     }
-  }, [history, edit, fetchRoute, id, query.q]);
+  }, [clearRoute, history, edit, fetchRoute, id, query.q]);
 
   return (
     <Layout

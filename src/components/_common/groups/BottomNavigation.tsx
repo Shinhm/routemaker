@@ -3,6 +3,7 @@ import {
   Button,
   CircularProgress,
   createStyles,
+  Fab,
   Grid,
   Theme,
 } from '@material-ui/core';
@@ -19,7 +20,6 @@ const useStyles = makeStyles((theme: Theme) =>
     },
     bottomMenuBar: {
       width: '100%',
-      height: 35,
       left: 0,
       [theme.breakpoints.up('sm')]: {
         left: '50%',
@@ -31,31 +31,43 @@ const useStyles = makeStyles((theme: Theme) =>
       zIndex: 10,
     },
     bottomMainActionButton: {
-      width: '95%',
-      border: '1px solid',
-      borderColor: theme.palette.primary.main,
+      // width: '95%',
+      // border: '1px solid',
+      // borderColor: theme.palette.primary.main,
+      // borderRadius: 50,
+      // marginBottom: '15%',
+      // fontWeight: 700,
+      // [theme.breakpoints.up('sm')]: {
+      //   fontSize: 15,
+      //   height: 60,
+      //   marginTop: -60,
+      // },
+      position: 'fixed',
+      bottom: 25,
+      left: '50%',
+      zIndex: 20,
+      width: 150,
+      transform: 'translateX(-50%)',
+      fontWeight: 700,
       borderRadius: 50,
-      marginTop: -7,
       [theme.breakpoints.up('sm')]: {
-        height: 50,
-        marginTop: -25,
+        width: 340,
+        fontSize: 15,
+        height: 60,
       },
     },
     bottomSideActionButton: {
-      marginTop: -7,
-      border: '1px solid',
-      // background: '#fff',
-      borderColor: theme.palette.primary.main,
-      borderRadius: 50,
-      height: 35,
-      '& span': {
-        lineHeight: 1,
-        // color: theme.palette.primary.main,
+      position: 'fixed',
+      bottom: 25,
+      left: '50%',
+      zIndex: 20,
+      marginLeft: theme.breakpoints.width('lg') / 2 - 70,
+      [theme.breakpoints.down('sm')]: {
+        marginLeft: theme.breakpoints.width('sm') / 2 - 70,
+        width: 36,
+        height: 36,
       },
-      [theme.breakpoints.up('sm')]: {
-        height: 60,
-        marginTop: -60,
-      },
+      transform: 'translateX(-50%)',
     },
   })
 );
@@ -83,7 +95,7 @@ function BottomNavigation({
   const history = useHistory();
 
   return (
-    <div className={classes.bottomMenuBar}>
+    <>
       <Grid container>
         <Grid item xs={3}>
           {UserAgentService.isMobile() && enabledPrevButton && (
@@ -108,32 +120,31 @@ function BottomNavigation({
               disabled={pending}
             >
               {label}
-              {(pending && '중...') || '하기'}
               {pending && (
                 <CircularProgress
                   size={10}
+                  color={'inherit'}
                   style={{ position: 'absolute', right: 25 }}
                 />
               )}
             </Button>
           )}
         </Grid>
-        <Grid item xs={3}>
-          {enabledAddButton && (
-            <Button
-              onClick={() => {
-                enabledAddButton && history.push(`/${id}/write`);
-              }}
-              variant="contained"
-              color="primary"
-              className={classes.bottomSideActionButton}
-            >
-              {enabledAddButton && <AddIcon />}
-            </Button>
-          )}
-        </Grid>
       </Grid>
-    </div>
+
+      {enabledAddButton && (
+        <Fab
+          aria-label={'add button'}
+          className={classes.bottomSideActionButton}
+          color={'primary'}
+          onClick={() => {
+            enabledAddButton && history.push(`/${id}/write`);
+          }}
+        >
+          <AddIcon />
+        </Fab>
+      )}
+    </>
   );
 }
 
