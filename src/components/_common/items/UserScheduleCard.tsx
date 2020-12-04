@@ -3,6 +3,7 @@ import { makeStyles } from '@material-ui/core/styles';
 import { GridListTile, GridListTileBar, IconButton } from '@material-ui/core';
 import { IUserRoutes } from '../../../models/User';
 import InfoIcon from '@material-ui/icons/Info';
+import { Link } from 'react-router-dom';
 
 const useStyles = makeStyles({
   root: {
@@ -17,18 +18,20 @@ function UserScheduleCard({ imageUrl, dateRange, id }: IUserRoutes) {
   const classes = useStyles();
   return (
     <GridListTile key={imageUrl}>
-      <img width={'100%'} src={imageUrl} alt={dateRange} />
-      <GridListTileBar
-        title={dateRange}
-        actionIcon={
-          <IconButton
-            aria-label={`info about ${dateRange}`}
-            className={classes.icon}
-          >
-            <InfoIcon />
-          </IconButton>
-        }
-      />
+      <Link to={`/${id}/trip`}>
+        <img width={'100%'} src={imageUrl} alt={dateRange} />
+        <GridListTileBar
+          title={dateRange}
+          actionIcon={
+            <IconButton
+              aria-label={`info about ${dateRange}`}
+              className={classes.icon}
+            >
+              <InfoIcon />
+            </IconButton>
+          }
+        />
+      </Link>
     </GridListTile>
   );
 }

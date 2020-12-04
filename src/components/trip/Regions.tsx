@@ -49,6 +49,7 @@ function Regions({ setFieldValue, values }: FormikProps<any>) {
             parseInt(b.time.replace(':', ''))
           );
         }
+        return 0;
       });
     setFieldValue('regions', reMakeRegions);
     handleCloseDialog();

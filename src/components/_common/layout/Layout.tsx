@@ -7,8 +7,6 @@ import {
   Theme,
   Toolbar,
   Typography,
-  useMediaQuery,
-  useTheme,
 } from '@material-ui/core';
 import { makeStyles } from '@material-ui/core/styles';
 import NavigateBeforeIcon from '@material-ui/icons/NavigateBefore';
@@ -26,14 +24,24 @@ const useStyles = makeStyles((theme: Theme) =>
         maxWidth: theme.breakpoints.width('lg'),
         paddingTop: 70,
       },
+      paddingTop: 50,
       margin: 'auto',
       marginBottom: 60,
       textAlign: 'center',
     },
     appBar: {
-      width: 700,
+      width: theme.breakpoints.width('lg'),
       left: '50%',
-      marginLeft: -350,
+      marginLeft: -(theme.breakpoints.width('lg') / 2),
+      [theme.breakpoints.down('sm')]: {
+        height: 50,
+        margin: 0,
+        left: 0,
+        width: '100%',
+      },
+    },
+    toolBar: {
+      minHeight: 50,
     },
     menuButton: {
       color: '#fff',
@@ -42,6 +50,7 @@ const useStyles = makeStyles((theme: Theme) =>
       flexGrow: 1,
       textAlign: 'left',
       color: '#fff',
+      paddingLeft: 16,
     },
     floatButton: {
       position: 'fixed',
@@ -110,8 +119,6 @@ function Layout({ children, appBar }: ILayoutProps) {
   const history = useHistory();
   const location = useLocation();
   const dispatch = useDispatch();
-  const theme = useTheme();
-  const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
   const { title, enabledPrevButton = false } = appBar;
 
   const { kakaoAuth } = useSelector((state: IRootState) => state.user);
@@ -154,44 +161,42 @@ function Layout({ children, appBar }: ILayoutProps) {
 
   return (
     <div className={classes.root}>
-      {!isMobile && (
-        <AppBar position="fixed" className={classes.appBar}>
-          <Toolbar>
-            {enabledPrevButton && (
-              <IconButton
-                onClick={() => {
-                  history.goBack();
-                }}
-                edge="start"
-                className={classes.menuButton}
-                color="inherit"
-                aria-label="menu"
-              >
-                <NavigateBeforeIcon />
-              </IconButton>
-            )}
-            <Typography variant="h6" className={classes.title}>
-              {title}
-            </Typography>
-            {location.pathname !== '/user' && (
-              <IconButton
-                onClick={() => {
-                  if (kakaoAuth) {
-                    history.push('/user');
-                  } else {
-                    handleOpenDialog('로그인 먼저 진행해주세요.');
-                  }
-                }}
-              >
-                <Avatar
-                  alt="Remy Sharp"
-                  src={kakaoAuth?.properties?.profile_image}
-                />
-              </IconButton>
-            )}
-          </Toolbar>
-        </AppBar>
-      )}
+      <AppBar position="fixed" className={classes.appBar}>
+        <Toolbar className={classes.toolBar}>
+          {enabledPrevButton && (
+            <IconButton
+              onClick={() => {
+                history.goBack();
+              }}
+              edge="start"
+              className={classes.menuButton}
+              color="inherit"
+              aria-label="menu"
+            >
+              <NavigateBeforeIcon />
+            </IconButton>
+          )}
+          <Typography variant="h6" className={classes.title}>
+            {title}
+          </Typography>
+          {location.pathname !== '/user' && (
+            <IconButton
+              onClick={() => {
+                if (kakaoAuth) {
+                  history.push('/user');
+                } else {
+                  handleOpenDialog('로그인 먼저 진행해주세요.');
+                }
+              }}
+            >
+              <Avatar
+                alt="Remy Sharp"
+                src={kakaoAuth?.properties?.profile_image}
+              />
+            </IconButton>
+          )}
+        </Toolbar>
+      </AppBar>
       {children}
       {openDialog && (
         <SimpleDialog handleClose={handleCloseDialog} message={dialogMessage} />

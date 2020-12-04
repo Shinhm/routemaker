@@ -133,7 +133,7 @@ function Edit() {
         setPending(false);
       }
     },
-    [id]
+    [dispatch, routes, id]
   );
 
   useEffect(() => {
@@ -216,7 +216,6 @@ function Edit() {
                   </Grid>
                   <BottomNavigation
                     pending={submitPending}
-                    enabledPrevButton={true}
                     enabledActionButton={true}
                     onClick={submitForm}
                     label={edit === EDIT_ENTRY.edit ? '수정' : '등록'}
