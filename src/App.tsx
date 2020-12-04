@@ -47,7 +47,7 @@ function App() {
           values: {
             xl: 700,
             lg: 700,
-            md: 700,
+            md: 500,
             xs: 400,
             sm: 400,
           },

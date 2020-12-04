@@ -20,7 +20,7 @@ const useStyles = makeStyles((theme: Theme) =>
   createStyles({
     root: {
       maxWidth: theme.breakpoints.width('sm'),
-      [theme.breakpoints.up('sm')]: {
+      [theme.breakpoints.up('md')]: {
         maxWidth: theme.breakpoints.width('lg'),
         paddingTop: 70,
       },
@@ -33,7 +33,7 @@ const useStyles = makeStyles((theme: Theme) =>
       width: theme.breakpoints.width('lg'),
       left: '50%',
       marginLeft: -(theme.breakpoints.width('lg') / 2),
-      [theme.breakpoints.down('sm')]: {
+      [theme.breakpoints.down('md')]: {
         height: 50,
         margin: 0,
         left: 0,

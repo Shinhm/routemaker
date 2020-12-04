@@ -21,27 +21,16 @@ const useStyles = makeStyles((theme: Theme) =>
     bottomMenuBar: {
       width: '100%',
       left: 0,
-      [theme.breakpoints.up('sm')]: {
+      [theme.breakpoints.up('md')]: {
         left: '50%',
-        width: theme.breakpoints.width('lg'),
-        marginLeft: -(theme.breakpoints.width('lg') / 2),
+        width: theme.breakpoints.width('md'),
+        transform: 'translateX(-50%)',
       },
       position: 'fixed',
       bottom: 0,
       zIndex: 10,
     },
     bottomMainActionButton: {
-      // width: '95%',
-      // border: '1px solid',
-      // borderColor: theme.palette.primary.main,
-      // borderRadius: 50,
-      // marginBottom: '15%',
-      // fontWeight: 700,
-      // [theme.breakpoints.up('sm')]: {
-      //   fontSize: 15,
-      //   height: 60,
-      //   marginTop: -60,
-      // },
       position: 'fixed',
       bottom: 25,
       left: '50%',
@@ -50,7 +39,7 @@ const useStyles = makeStyles((theme: Theme) =>
       transform: 'translateX(-50%)',
       fontWeight: 700,
       borderRadius: 50,
-      [theme.breakpoints.up('sm')]: {
+      [theme.breakpoints.up('md')]: {
         width: 340,
         fontSize: 15,
         height: 60,
