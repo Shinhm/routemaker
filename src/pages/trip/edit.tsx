@@ -43,7 +43,7 @@ function Edit() {
     (state: IRootState) => state.route
   );
 
-  const { routes } = rootRoutes as IRoute;
+  const { routes } = rootRoutes || {};
 
   const handleSubmit = async (formData: IRouteRoutes) => {
     const result = await FirebaseService.getDoc(FireStoreSchema.route, id);

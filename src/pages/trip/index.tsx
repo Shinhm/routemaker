@@ -19,7 +19,7 @@ import { IRootState } from '../../store';
 import { setRoutes } from '../../store/RouteStore';
 import { makeInviteCode } from '../index';
 import ConfirmDialog from '../../components/_common/dialogs/ConfirmDialog';
-import { IUser, IUserRoutes } from '../../models/User';
+import { IUserRoutes } from '../../models/User';
 
 SwiperCore.use([Navigation, Pagination, Scrollbar, A11y]);
 
@@ -155,10 +155,12 @@ function Index() {
   }, [routes, controlledSwiper, query.scroll]);
 
   useEffect(() => {
-    if (kakaoAuth) {
+    if (!routes || routes?.length === 0) {
+      setEnableActionButton(false);
+    } else if (kakaoAuth) {
       setEnableActionButton(!owners.includes(kakaoAuth.id.toString()));
     }
-  }, [owners, kakaoAuth]);
+  }, [routes, owners, kakaoAuth]);
 
   return (
     <>
