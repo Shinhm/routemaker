@@ -61,7 +61,6 @@ function Regions({ setFieldValue, values }: FormikProps<any>) {
     }
     const filterRegions = values.regions.filter(
       (regionFilter: IRouteRoutesPlace) => {
-        console.log(removeRegionId, regionFilter.id);
         return regionFilter.id !== removeRegionId;
       }
     );
@@ -74,7 +73,7 @@ function Regions({ setFieldValue, values }: FormikProps<any>) {
       {regions?.map((region: IRouteRoutesPlace, index: number) => (
         <RegionCard
           key={index}
-          id={index.toString()}
+          id={region.id.toString()}
           time={region.time}
           placeUrl={region.place_url}
           text={region.place_name}
