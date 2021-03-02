@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { lazy } from 'react';
 import {
   BrowserRouter as Router,
   Switch,
@@ -8,11 +8,12 @@ import {
   RouteProps,
   useHistory,
 } from 'react-router-dom';
-import Trip from './trip/index';
-import Edit from './trip/edit';
-import Index from './index';
-import Receipt from './trip/receipt';
-import User from './user';
+
+const Trip = lazy(() => import('./trip/index'));
+const Edit = lazy(() => import('./trip/edit'));
+const Receipt = lazy(() => import('./trip/receipt'));
+const User = lazy(() => import('./user'));
+const Index = lazy(() => import('./index'));
 
 function PrivateRoute(props: RouteProps) {
   const history = useHistory();
